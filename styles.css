@@ -605,6 +605,9 @@
   
   .footer__link--wrapper {
     display: flex;
+    align-content: left;
+    align-items: left;
+    padding: 0px;
   }
 
   .footer__link--items {
