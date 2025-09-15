@@ -846,3 +846,16 @@
       justify-content: flex-start;
       text-align: left;
     }
+
+
+    /* Overflow guard */
+  html, body {
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  img, video, iframe {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
