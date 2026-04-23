@@ -8,7 +8,7 @@ export function buildScene(canvas, onClickObject, onZoneChange) {
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.05;
+  renderer.toneMappingExposure = 2.5;
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x0c0b0a);
@@ -18,8 +18,8 @@ export function buildScene(canvas, onClickObject, onZoneChange) {
   camera.position.set(0, 4, 11);
 
   // ── LIGHTING ──────────────────────────────────────────
-  scene.add(new THREE.AmbientLight(0x1a1814, 8));
-  const sun = new THREE.DirectionalLight(0xfff4e0, 3);
+  scene.add(new THREE.AmbientLight(0xffffff, 4));
+  const sun = new THREE.DirectionalLight(0xffffff, 6);
   sun.position.set(2, 10, 4);
   sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048);
@@ -27,7 +27,7 @@ export function buildScene(canvas, onClickObject, onZoneChange) {
   sun.shadow.camera.left = -12; sun.shadow.camera.right = 12;
   sun.shadow.camera.top = 12; sun.shadow.camera.bottom = -12;
   scene.add(sun);
-  const fill = new THREE.DirectionalLight(0xffa060, 1.5);
+  const fill = new THREE.DirectionalLight(0xffa060, 3);
   fill.position.set(-6, 5, -4);
   scene.add(fill);
 
@@ -38,9 +38,9 @@ export function buildScene(canvas, onClickObject, onZoneChange) {
     l.position.set(...p); scene.add(l); return l;
   });
 
-  const lampLight = new THREE.PointLight(0xffb347, 1.4, 5, 2);
+  const lampLight = new THREE.PointLight(0xffb347, 8, 8, 2);
   lampLight.position.set(-7, 3.8, -5.5); scene.add(lampLight);
-  const monGlow = new THREE.PointLight(0x4a8eff, 0.6, 2.5, 2);
+  const monGlow = new THREE.PointLight(0x4a8eff, 4, 4, 2);
   monGlow.position.set(-3.5, 1.9, -6.5); scene.add(monGlow);
 
   // ── MATERIALS ─────────────────────────────────────────
@@ -269,7 +269,7 @@ export function buildScene(canvas, onClickObject, onZoneChange) {
     animId = requestAnimationFrame(animate);
     const t = clock.getElapsedTime();
     vball.position.y = .3 + Math.sin(t * 1.1) * .07;
-    lampLight.intensity = 1.3 + Math.sin(t * 1.9) * .12;
+    lampLight.intensity = 7 + Math.sin(t * 1.9) * .5;
     bulbGlow.material.opacity = .85 + Math.sin(t * .8) * .08;
     lapGlow.material.opacity = .8 + Math.sin(t * .4) * .1;
     monGlow.intensity = .5 + Math.sin(t * .3) * .15;
@@ -294,7 +294,7 @@ export function buildScene(canvas, onClickObject, onZoneChange) {
     camTarget = { ...z.cam };
     lookTarget = { x: z.cam.x * .25, y: 1.5, z: z.cam.z * .1 };
     theta = 0; phi = 0;
-    zoneLights.forEach((l, j) => { l.intensity = j === i ? 1.6 : 0; });
+    zoneLights.forEach((l, j) => { l.intensity = j === i ? 8 : 0; });
   }
 
   function onMouseMove(e) {
