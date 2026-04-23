@@ -1,67 +1,66 @@
-# harryjwang.com
+# harryjwang.com — Portfolio
 
-Personal portfolio — two sites in one repo.
+Built with Vite + React + Three.js.
 
-| File | Description | URL |
-|------|-------------|-----|
-| `index.html` | Industry React portfolio | `harryjwang.com/` |
-| `room.html` | Three.js interactive room | `harryjwang.com/room` |
-| `404.html` | Custom 404 + redirect | automatic |
-| `CNAME` | Custom domain config | — |
+| Route | Page |
+|-------|------|
+| `/` | Industry React portfolio |
+| `/room` | Three.js interactive room |
+
+## Local development
+```bash
+npm install
+npm run dev       # http://localhost:5173
+```
 
 ## Deploy to GitHub Pages
 
-### First time setup
-
-1. Create (or use existing) repo named `harryjwang.github.io`
-2. Push all files to the `main` branch:
-   ```bash
-   git init
-   git add .
-   git commit -m "initial portfolio deploy"
-   git remote add origin https://github.com/harryjwang/harryjwang.github.io.git
-   git push -u origin main
-   ```
-3. Go to **Settings → Pages → Source → Deploy from branch → main → / (root)**
-4. Site goes live at `https://harryjwang.github.io`
-
-### Custom domain (harryjwang.com)
-
-The `CNAME` file is already included. You just need to point your domain DNS:
-
-**At your domain registrar, add these DNS records:**
-
-| Type | Name | Value |
-|------|------|-------|
-| A | @ | 185.199.108.153 |
-| A | @ | 185.199.109.153 |
-| A | @ | 185.199.110.153 |
-| A | @ | 185.199.111.153 |
-| CNAME | www | harryjwang.github.io |
-
-Then in GitHub: **Settings → Pages → Custom domain → harryjwang.com → Save**
-
-Enable **Enforce HTTPS** once the cert is issued (~10 min).
-
-## Update workflow
-
-Any push to `main` auto-deploys. To update content:
+### Build
 ```bash
-# edit index.html or room.html locally
-git add .
-git commit -m "update portfolio content"
-git push
+npm run build     # outputs to dist/
 ```
-Changes are live in ~30 seconds.
 
-## Local preview
-
-No build step needed — just open the files directly:
+### Push dist/ to GitHub Pages
 ```bash
-# Option 1: Python server (recommended, avoids CORS issues)
-python3 -m http.server 8080
-# then open http://localhost:8080
+# One-time: install gh-pages
+npm install --save-dev gh-pages
 
-# Option 2: Just open index.html in browser
-open index.html
+# Add to package.json scripts:
+# "deploy": "gh-pages -d dist"
+
+npm run deploy
 ```
+
+Or push the whole repo and use GitHub Actions (see below).
+
+### GitHub Actions (auto-deploy on push)
+Create `.github/workflows/deploy.yml`:
+```yaml
+name: Deploy
+on:
+  push:
+    branches: [main]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npm run build
+      - uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+```
+
+### DNS records for harryjwang.com
+| Type  | Name | Value                |
+|-------|------|----------------------|
+| A     | @    | 185.199.108.153      |
+| A     | @    | 185.199.109.153      |
+| A     | @    | 185.199.110.153      |
+| A     | @    | 185.199.111.153      |
+| CNAME | www  | harryjwang.github.io |

@@ -1,0 +1,139 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist+Mono:wght@300;400;500&display=swap');
+
+.root {
+  position: fixed; inset: 0;
+  background: #0c0b0a;
+  color: #ede8dd;
+  font-family: 'Geist Mono', monospace;
+  overflow: hidden;
+}
+
+.canvas { display: block; width: 100%; height: 100%; }
+
+/* INTRO */
+.intro {
+  position: fixed; inset: 0; z-index: 500;
+  background: #0c0b0a;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+  animation: fadeIn 0.6s ease;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.introName {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(3rem, 7vw, 5.5rem);
+  letter-spacing: -0.02em; text-align: center; font-weight: 400;
+}
+.introName em { font-style: italic; color: #e8c97a; }
+
+.introSub {
+  font-size: 0.62rem; letter-spacing: 0.22em; text-transform: uppercase;
+  color: rgba(237,232,221,0.35);
+}
+
+.introBtn {
+  margin-top: 28px; background: none;
+  border: 1px solid rgba(232,201,122,0.4); color: #e8c97a;
+  font-family: 'Geist Mono', monospace; font-size: 0.65rem;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  padding: 14px 40px; cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.introBtn:hover { background: #e8c97a; color: #0c0b0a; }
+
+/* HUD */
+.hud {
+  position: fixed; top: 0; left: 0; right: 0;
+  padding: 24px 36px;
+  display: flex; justify-content: space-between; align-items: flex-start;
+  pointer-events: none; z-index: 100;
+}
+.hudName {
+  font-family: 'Instrument Serif', serif; font-size: 1.15rem; letter-spacing: 0.01em;
+}
+.hudName em { font-style: italic; color: #e8c97a; }
+.hudSub { font-size: 0.58rem; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(237,232,221,0.3); margin-top: 3px; }
+
+.backLink {
+  position: fixed; top: 24px; right: 36px; z-index: 200;
+  font-family: 'Geist Mono', monospace; font-size: 0.58rem; letter-spacing: 0.16em;
+  text-transform: uppercase; color: rgba(232,201,122,0.6); text-decoration: none;
+  border: 1px solid rgba(232,201,122,0.2); padding: 7px 16px;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+.backLink:hover { color: #e8c97a; border-color: rgba(232,201,122,0.5); background: rgba(232,201,122,0.06); }
+
+/* ZONE DISPLAY */
+.zoneDisplay {
+  position: fixed; bottom: 36px; left: 36px;
+  pointer-events: none; z-index: 100;
+  animation: slideUp 0.4s ease;
+}
+@keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+.zoneTag {
+  font-size: 0.55rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: #e8c97a; margin-bottom: 4px;
+}
+.zoneName {
+  font-family: 'Instrument Serif', serif; font-size: 2.8rem; line-height: 1;
+  letter-spacing: -0.01em;
+}
+.zoneDesc {
+  font-size: 0.65rem; line-height: 1.7; color: rgba(237,232,221,0.5);
+  max-width: 320px; margin-top: 8px;
+}
+
+/* NAV DOTS */
+.navDots {
+  position: fixed; bottom: 36px; right: 36px; z-index: 100;
+  display: flex; flex-direction: column; gap: 8px; align-items: flex-end;
+}
+.dot {
+  display: flex; align-items: center; gap: 10px;
+  cursor: pointer; opacity: 0.3; transition: opacity 0.3s;
+}
+.dot:hover, .dotActive { opacity: 1; }
+.dotLabel { font-size: 0.56rem; letter-spacing: 0.18em; text-transform: uppercase; }
+.dotPip {
+  width: 5px; height: 5px; border-radius: 50%; background: #ede8dd;
+  transition: background 0.3s, transform 0.3s;
+}
+.dotActive .dotPip { background: #e8c97a; transform: scale(1.6); }
+
+/* HINT */
+.hint {
+  position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%);
+  font-size: 0.56rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: rgba(237,232,221,0.2); pointer-events: none; z-index: 100;
+  white-space: nowrap;
+}
+
+/* MODAL */
+.modalOverlay {
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(12,11,10,0.8); backdrop-filter: blur(16px);
+  display: flex; align-items: center; justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+.modalCard {
+  position: relative; background: #141210;
+  border: 1px solid rgba(232,201,122,0.15);
+  max-width: 580px; width: 90%; padding: 52px 56px;
+  animation: slideUp 0.35s ease;
+}
+.modalClose {
+  position: absolute; top: 18px; right: 22px;
+  background: none; border: none; color: rgba(237,232,221,0.4);
+  font: 400 1.5rem 'Geist Mono', monospace; cursor: pointer;
+  transition: color 0.2s;
+}
+.modalClose:hover { color: #e8c97a; }
+.modalEy { font-size: 0.55rem; letter-spacing: 0.2em; text-transform: uppercase; color: #e8c97a; margin-bottom: 10px; }
+.modalTitle { font-family: 'Instrument Serif', serif; font-size: 2rem; line-height: 1.1; margin-bottom: 18px; }
+.modalBody { font-size: 0.76rem; line-height: 1.9; color: rgba(237,232,221,0.65); white-space: pre-line; }
+.modalChips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 20px; }
+.chip {
+  font-size: 0.55rem; letter-spacing: 0.12em; text-transform: uppercase;
+  border: 1px solid rgba(232,201,122,0.25); color: #e8c97a; padding: 3px 10px;
+}

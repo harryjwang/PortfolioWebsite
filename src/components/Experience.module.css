@@ -1,0 +1,60 @@
+.section { border-bottom: 1px solid var(--border); }
+
+.head {
+  display: grid; grid-template-columns: 48px 1fr;
+  padding: 60px 40px 0; margin-bottom: 52px;
+}
+.num { font-family: var(--mono); font-size: 0.56rem; letter-spacing: 0.1em; color: var(--accent); padding-top: 8px; }
+.title {
+  font-family: var(--serif); font-size: clamp(2.2rem, 4vw, 3.5rem);
+  font-weight: 400; line-height: 1; letter-spacing: -0.02em;
+}
+.title em { font-style: italic; color: var(--accent); }
+
+.list { padding: 0 40px 60px; }
+
+.row {
+  display: grid; grid-template-columns: 190px 1fr 24px;
+  gap: 32px; padding: 28px 0;
+  border-top: 1px solid var(--border);
+  position: relative; color: inherit;
+  transition: background 0.2s;
+}
+.row::before {
+  content: ''; position: absolute; left: -40px; right: -40px; top: 0; bottom: 0;
+  background: rgba(255,255,255,0.02); opacity: 0; transition: opacity 0.2s; pointer-events: none;
+}
+.row:hover::before { opacity: 1; }
+
+.meta { position: relative; z-index: 1; }
+.period { font-family: var(--mono); font-size: 0.58rem; letter-spacing: 0.08em; color: var(--text-mid); margin-bottom: 5px; }
+.org { font-family: var(--serif); font-size: 0.95rem; margin-bottom: 3px; }
+.type { font-family: var(--mono); font-size: 0.54rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); }
+
+.content { position: relative; z-index: 1; }
+.role { font-family: var(--serif); font-size: 1.35rem; line-height: 1.2; margin-bottom: 12px; }
+.desc { font-size: 0.82rem; line-height: 1.8; color: var(--text-mid); margin-bottom: 16px; }
+.chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.chip {
+  font-family: var(--mono); font-size: 0.52rem; letter-spacing: 0.1em;
+  text-transform: uppercase; padding: 3px 9px;
+  border: 1px solid var(--border); color: var(--text-mid);
+  transition: border-color 0.2s, color 0.2s;
+}
+.row:hover .chip { border-color: var(--border-bright); color: var(--text); }
+
+.arrow {
+  position: relative; z-index: 1;
+  align-self: center; color: var(--text-dim);
+  transition: color 0.2s, transform 0.2s;
+  font-size: 1rem;
+}
+.row:hover .arrow { color: var(--accent); transform: translateX(4px); }
+
+@media (max-width: 860px) {
+  .head { padding: 40px 24px 0; }
+  .list { padding: 0 24px 40px; }
+  .row { grid-template-columns: 1fr; gap: 12px; }
+  .row::before { left: -24px; right: -24px; }
+  .arrow { display: none; }
+}

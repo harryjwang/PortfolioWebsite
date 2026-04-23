@@ -1,0 +1,74 @@
+.section {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 60px 40px;
+}
+
+.heading {
+  font-family: var(--serif);
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  font-weight: 400; font-style: italic;
+  color: var(--text); margin-bottom: 32px;
+}
+.heading span { color: var(--accent); }
+
+.window {
+  background: #050504;
+  border: 1px solid var(--border);
+  max-width: 680px;
+  font-family: var(--mono); font-size: 0.78rem;
+  overflow: hidden;
+  cursor: text;
+}
+
+.titlebar {
+  background: rgba(255,255,255,0.04);
+  border-bottom: 1px solid var(--border);
+  padding: 8px 14px;
+  display: flex; align-items: center; gap: 6px;
+}
+.dot { width: 11px; height: 11px; border-radius: 50%; }
+.titlebarText {
+  font-family: var(--mono); font-size: 0.58rem;
+  color: var(--text-dim); margin-left: 8px;
+}
+
+.body {
+  padding: 20px 24px;
+  max-height: 320px; overflow-y: auto;
+}
+
+.line { display: flex; gap: 10px; margin-bottom: 1px; }
+.prompt { color: #5fba7d; }
+.cmd { color: var(--text); }
+.comment { color: var(--text-dim); }
+.out {
+  padding-left: 18px; color: #8a8580; line-height: 1.8; margin-bottom: 2px;
+}
+.out :global(strong) { color: #7ab4ff; font-weight: 400; }
+.out :global(em) { color: var(--accent2); font-style: normal; }
+.out :global(a) { color: var(--accent2); }
+.out :global(a:hover) { text-decoration: underline; }
+
+.inputRow { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
+.input {
+  flex: 1; background: transparent; border: none; outline: none;
+  color: var(--text); font-family: var(--mono); font-size: 0.78rem;
+  caret-color: #5fba7d;
+}
+
+.cursor {
+  display: inline-block; width: 7px; height: 13px;
+  background: #5fba7d; vertical-align: middle;
+  animation: blink 1s step-end infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+.hint {
+  font-family: var(--mono); font-size: 0.58rem; letter-spacing: 0.1em;
+  color: var(--text-dim); margin-top: 16px; max-width: 680px;
+}
+
+@media (max-width: 860px) {
+  .section { padding: 40px 24px; }
+}
