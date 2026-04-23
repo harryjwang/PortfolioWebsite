@@ -8,7 +8,7 @@ export default function App() {
     window.history.replaceState(null, '', redirect);
   }
 
-  const path = window.location.pathname;
-  if (path === '/room' || path === '/room/') return <Room />;
+  const path = window.location.pathname.replace(/\/$/, '');
+  if (path === '/room') return <Room />;
   return <Portfolio />;
 }
