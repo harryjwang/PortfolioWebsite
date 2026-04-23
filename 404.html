@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harry Wang</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    background:#0a0908;color:#e8e4dd;
+    font-family:'Geist Mono',monospace;
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    min-height:100vh;gap:24px;
+  }
+  h1{font-family:serif;font-size:5rem;font-style:italic;color:rgba(232,201,122,.15);line-height:1;}
+  p{font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(232,228,217,.3);}
+  a{
+    font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;
+    color:#e8543a;text-decoration:none;
+    border:1px solid rgba(232,84,58,.35);padding:10px 24px;
+    transition:background .2s;
+  }
+  a:hover{background:rgba(232,84,58,.1);}
+</style>
+</head>
+<body>
+<h1>404</h1>
+<p>Page not found</p>
+<a href="/">← Back to Portfolio</a>
+<script>
+  // SPA-style redirect: preserve path for client-side routing if needed
+  const path = window.location.pathname;
+  if(path === '/room' || path === '/room/') {
+    window.location.replace('/room.html');
+  }
+</script>
+</body>
+</html>

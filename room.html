@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harry Wang — Room</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist+Mono:wght@300;400;500&display=swap');
+
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#0c0b0a;color:#ede8dd;font-family:'Geist Mono',monospace;overflow:hidden;cursor:none;}
+canvas{display:block;}
+#canvas-container{position:fixed;inset:0;}
+
+/* cursor */
+#cur{position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);}
+#cur-dot{width:8px;height:8px;background:#e8c97a;border-radius:50%;transition:transform .15s,background .2s;}
+#cur-ring{position:fixed;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);width:32px;height:32px;border:1px solid rgba(232,201,122,.4);border-radius:50%;transition:width .2s,height .2s,border-color .2s;}
+body.hover #cur-dot{transform:translate(-50%,-50%) scale(3);background:#e8543a;}
+body.hover #cur-ring{width:52px;height:52px;border-color:rgba(232,84,58,.5);}
+
+/* HUD top */
+#hud{position:fixed;top:0;left:0;right:0;padding:24px 36px;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;z-index:100;}
+#hud-name{font-family:'Instrument Serif',serif;font-size:1.15rem;letter-spacing:.01em;}
+#hud-name i{font-style:italic;color:#e8c97a;}
+#hud-sub{font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(237,232,221,.3);margin-top:3px;}
+#hud-hint{font-size:.58rem;letter-spacing:.12em;color:rgba(237,232,221,.28);text-align:right;line-height:2;}
+#back-link{
+  position:fixed;top:24px;right:36px;z-index:200;
+  font-family:'Geist Mono',monospace;font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;
+  color:rgba(232,201,122,.6);text-decoration:none;
+  border:1px solid rgba(232,201,122,.2);padding:7px 16px;
+  transition:color .2s,border-color .2s,background .2s;
+}
+#back-link:hover{color:#e8c97a;border-color:rgba(232,201,122,.5);background:rgba(232,201,122,.06);}
+
+/* Zone indicator bottom left */
+#zone-display{position:fixed;bottom:36px;left:36px;pointer-events:none;z-index:100;}
+#zone-tag{font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;color:#e8c97a;margin-bottom:4px;opacity:0;transition:opacity .5s;}
+#zone-name{font-family:'Instrument Serif',serif;font-size:2.8rem;line-height:1;letter-spacing:-.01em;opacity:0;transition:opacity .5s;}
+#zone-desc{font-size:.65rem;line-height:1.7;color:rgba(237,232,221,.5);max-width:320px;margin-top:8px;opacity:0;transition:opacity .5s;}
+
+/* Nav dots bottom right */
+#nav{position:fixed;bottom:36px;right:36px;z-index:100;display:flex;flex-direction:column;gap:8px;align-items:flex-end;}
+.nd{display:flex;align-items:center;gap:10px;cursor:pointer;opacity:.3;transition:opacity .3s;}
+.nd:hover,.nd.active{opacity:1;}
+.nd-label{font-size:.56rem;letter-spacing:.18em;text-transform:uppercase;}
+.nd-pip{width:5px;height:5px;border-radius:50%;background:#ede8dd;transition:background .3s,transform .3s;}
+.nd.active .nd-pip{background:#e8c97a;transform:scale(1.6);}
+
+/* Modal */
+#modal{position:fixed;inset:0;z-index:300;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .4s;}
+#modal.open{opacity:1;pointer-events:all;}
+#modal-bg{position:absolute;inset:0;background:rgba(12,11,10,.8);backdrop-filter:blur(16px);}
+#modal-card{position:relative;z-index:1;background:#141210;border:1px solid rgba(232,201,122,.15);max-width:580px;width:90%;padding:52px 56px;transform:translateY(20px);transition:transform .4s;}
+#modal.open #modal-card{transform:translateY(0);}
+#modal-x{position:absolute;top:18px;right:22px;background:none;border:none;color:rgba(237,232,221,.4);font:400 1.5rem 'Geist Mono',monospace;cursor:pointer;transition:color .2s;}
+#modal-x:hover{color:#e8c97a;}
+#modal-eyebrow{font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;color:#e8c97a;margin-bottom:10px;}
+#modal-title{font-family:'Instrument Serif',serif;font-size:2rem;line-height:1.1;margin-bottom:18px;}
+#modal-body{font-size:.76rem;line-height:1.9;color:rgba(237,232,221,.65);}
+#modal-body strong{color:#ede8dd;font-weight:500;}
+#modal-body a{color:#e8c97a;text-decoration:none;}
+#modal-body a:hover{text-decoration:underline;}
+#modal-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:20px;}
+.chip{font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;border:1px solid rgba(232,201,122,.25);color:#e8c97a;padding:3px 10px;}
+
+/* Intro */
+#intro{position:fixed;inset:0;z-index:500;background:#0c0b0a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity .9s;}
+#intro.gone{opacity:0;pointer-events:none;}
+#intro h1{font-family:'Instrument Serif',serif;font-size:clamp(3rem,7vw,5.5rem);letter-spacing:-.02em;text-align:center;}
+#intro h1 i{font-style:italic;color:#e8c97a;}
+#intro p{font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(237,232,221,.35);}
+#intro-btn{margin-top:28px;background:none;border:1px solid rgba(232,201,122,.4);color:#e8c97a;font-family:'Geist Mono',monospace;font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;padding:14px 40px;cursor:pointer;transition:background .2s,color .2s;}
+#intro-btn:hover{background:#e8c97a;color:#0c0b0a;}
+
+/* scroll bar */
+#pbar{position:fixed;top:0;left:0;height:2px;background:#e8c97a;z-index:200;transition:width .5s ease;}
+</style>
+</head>
+<body>
+<div id="cur"><div id="cur-dot"></div></div>
+<div id="cur-ring"></div>
+
+<div id="intro">
+  <h1>Harry <i>Wang</i></h1>
+  <p>4A Computer Engineering · University of Waterloo</p>
+  <button id="intro-btn">Enter the Room ↓</button>
+</div>
+
+<a href="/" id="back-link">← Portfolio</a>
+
+<div id="canvas-container"></div>
+
+<div id="hud">
+  <div>
+    <div id="hud-name">Harry <i>Wang</i></div>
+    <div id="hud-sub">4A CompEng · UWaterloo</div>
+  </div>
+</div>
+
+<div id="zone-display">
+  <div id="zone-tag"></div>
+  <div id="zone-name"></div>
+  <div id="zone-desc"></div>
+</div>
+
+<div id="nav"></div>
+
+<div id="modal">
+  <div id="modal-bg"></div>
+  <div id="modal-card">
+    <button id="modal-x">×</button>
+    <div id="modal-eyebrow"></div>
+    <div id="modal-title"></div>
+    <div id="modal-body"></div>
+    <div id="modal-chips"></div>
+  </div>
+</div>
+
+<div id="pbar"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════
+const ZONES = [
+  {
+    id:'desk', tag:'Work & Internships', name:'The Desk', color:0xe8c97a,
+    cam:{x:-4,y:2.6,z:5.2},
+    desc:'Where the 9-to-5 happens. Internship work, co-op projects, and industry engineering.',
+    objects:[
+      {
+        ey:'Work Experience', title:'Software Engineering Intern',
+        body:`Built production <strong>Databricks Python tooling</strong> for SKU pricing systems used in live data pipelines. Designed and specced an <strong>AIOps platform</strong> featuring <em>Canary</em> — a revenue forecasting model with real-time anomaly detection and automated remediation. Integrated MCP servers with PostgreSQL backends and built the data pipeline infrastructure from the ground up.`,
+        chips:['Python','Databricks','PostgreSQL','MCP','AIOps','Data Pipelines','Canary']
+      },
+      {
+        ey:'Work Experience', title:'Co-op Engineering Projects',
+        body:`Developed internal tooling and scripting across multiple co-op terms, working across the stack from backend data pipelines to systems integration. Built <strong>SKU pricing dictionaries</strong>, automated reporting, and spec'd technical architecture documents for platform-level features.`,
+        chips:['Python','SQL','System Design','Technical Writing','REST APIs']
+      }
+    ]
+  },
+  {
+    id:'shelf', tag:'Design Teams', name:'The Shelf', color:0x7eb8f7,
+    cam:{x:4.5,y:2.4,z:4.8},
+    desc:'UW design teams. Hardware, embedded systems, and competitive engineering.',
+    objects:[
+      {
+        ey:'UW ASIC Design Team', title:'Control Group — Testbench Lead',
+        body:`Lead the control verification group building <strong>production cocotb testbenches</strong> in Python for digital logic modules: round-robin bus arbiter, AES FSM (10-state), SHA FSM (8-state), request queue, and completion queue.<br><br>Resolved complex signal hierarchy issues (<code>dut.dut.state</code>), Windows PATH/Git Bash conflicts with iverilog, and separate <code>sim_build_</code> directories to prevent compilation conflicts.`,
+        chips:['cocotb','Python','SystemVerilog','AES','SHA','Bus Arbiter','iverilog']
+      },
+      {
+        ey:'UW Baja SAE', title:'Baja SAE — Engineering Member',
+        body:`Member of the <strong>University of Waterloo Baja SAE</strong> team, designing and building off-road vehicles to compete at the international SAE Baja competition. Hands-on mechanical and systems engineering in a high-performance, competition-driven environment.`,
+        chips:['Mechanical Systems','CAD','Embedded','Competition Engineering']
+      }
+    ]
+  },
+  {
+    id:'projects', tag:'Starred Projects', name:'The Pinboard', color:0xff8c69,
+    cam:{x:0,y:3,z:6},
+    desc:'The things I\'m most proud of building. Across hardware, software, and embedded.',
+    objects:[
+      {
+        ey:'Embedded Systems', title:'Custom RTOS — STM32F401RE',
+        body:`Built a <strong>lightweight real-time operating system from scratch</strong> for the STM32F401RE microcontroller. Cooperative task scheduler with context switching implemented in <strong>ARM Cortex-M Thumb assembly</strong> using the PendSV interrupt handler.<br><br>Each task managed via a Task Control Block (TCB) with manually constructed exception frames. Includes dynamic memory management for task stacks and kernel objects.<br><br><a href="https://github.com/harryjwang/Embedded-RTOS-STM32" target="_blank">↗ github.com/harryjwang/Embedded-RTOS-STM32</a>`,
+        chips:['C','ARM Assembly','STM32','RTOS','PendSV','Context Switching','Embedded']
+      },
+      {
+        ey:'Hardware', title:'MVM Verilog Engine',
+        body:`Designed a <strong>matrix-vector multiplication hardware engine</strong> in Verilog/SystemVerilog. Parameterized RTL design targeting ASIC and FPGA synthesis flows. Includes AXI Stream interfaces, skid buffers for backpressure handling, and UART I/O.<br><br>Part of the UW ASIC design pipeline work.`,
+        chips:['SystemVerilog','Verilog','FPGA','ASIC','AXI Stream','RTL Design']
+      },
+      {
+        ey:'AI / Software', title:'AI Agent',
+        body:`Built a <strong>custom AI agent</strong> integrating LLM-backed reasoning with tool use and memory. Designed for practical automation tasks with a clean Python interface. Explores agentic workflows, prompt engineering, and multi-step task decomposition.`,
+        chips:['Python','LLMs','Agents','Prompt Engineering','Automation']
+      },
+      {
+        ey:'Creative / Hardware', title:'Stratford Light Festival',
+        body:`Designed and built an <strong>interactive light installation</strong> for the Stratford Light Festival. Used <strong>YOLOv8-based people tracking</strong> with real-time visual effects including palette cycling and dynamic screen resolution detection. Brought computer vision into a public art context.`,
+        chips:['Python','YOLOv8','Computer Vision','OpenCV','Raspberry Pi','Creative Tech']
+      },
+      {
+        ey:'Embedded', title:'Water Reservoir System',
+        body:`Designed an <strong>automated water reservoir monitoring and control system</strong>. Sensor integration, threshold-based logic, and embedded control on microcontroller hardware. Built for reliability in a real-world environmental monitoring context.`,
+        chips:['Embedded C','Sensors','Microcontroller','Control Systems']
+      }
+    ]
+  },
+  {
+    id:'sports', tag:'Sports', name:'The Court', color:0x69f0ae,
+    cam:{x:5.5,y:2.2,z:-0.5},
+    desc:'Volleyball and tennis. Competitive, team-oriented, always improving.',
+    objects:[
+      {
+        ey:'Sports', title:'Volleyball',
+        body:`Competitive volleyball — a sport that demands <strong>fast reflexes, precise coordination, and spatial awareness</strong>. The same instincts that make a good setter make a good engineer: reading the system, anticipating what comes next, and executing under pressure.`,
+        chips:['Volleyball','Team Sports','Competitive']
+      },
+      {
+        ey:'Sports', title:'Tennis',
+        body:`Tennis sharpens <strong>individual focus, consistency, and adaptability</strong>. Every match is a debugging session — you observe, adjust, and iterate until something works. Playing since high school, always working on technique.`,
+        chips:['Tennis','Individual Sport','Focus','Persistence']
+      }
+    ]
+  },
+  {
+    id:'corner', tag:'About Me', name:'The Corner', color:0xc9a0f5,
+    cam:{x:-5.5,y:2.2,z:-0.5},
+    desc:'A quiet spot. Who I am beyond the résumé.',
+    objects:[
+      {
+        ey:'About', title:'Harry Wang',
+        body:`<strong>3A Computer Engineering</strong> at the University of Waterloo. I build at every layer of the stack — from ARM assembly and ASIC testbenches to Python data platforms and interactive web experiences.<br><br>Currently on the <strong>UW ASIC Design Team</strong> (control group lead) and <strong>UW Baja SAE</strong>. Doing co-op terms in software/data engineering. Always shipping something.<br><br>Based in <strong>Markham, ON</strong>. Volleyball, tennis, Japan enthusiast.<br><br><a href="https://github.com/harryjwang" target="_blank">↗ GitHub</a> &nbsp;&nbsp; <a href="https://www.linkedin.com/in/harry-j-wang/" target="_blank">↗ LinkedIn</a>`,
+        chips:['UWaterloo','CompEng 3A','ASIC','Baja SAE','Markham ON']
+      }
+    ]
+  }
+];
+
+// ═══════════════════════════════════════════════════════
+// RENDERER
+// ═══════════════════════════════════════════════════════
+const container = document.getElementById('canvas-container');
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth,innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+container.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0c0b0a);
+scene.fog = new THREE.FogExp2(0x0c0b0a,.045);
+
+const camera = new THREE.PerspectiveCamera(55,innerWidth/innerHeight,.1,80);
+camera.position.set(0,4,11);
+
+// ═══════════════════════════════════════════════════════
+// LIGHTING
+// ═══════════════════════════════════════════════════════
+scene.add(new THREE.AmbientLight(0x1a1814,2.2));
+
+// Main ceiling fill
+const sun = new THREE.DirectionalLight(0xfff4e0,.7);
+sun.position.set(2,10,4);
+sun.castShadow=true;
+sun.shadow.mapSize.set(2048,2048);
+sun.shadow.camera.near=.5;
+sun.shadow.camera.far=40;
+sun.shadow.camera.left=-12;sun.shadow.camera.right=12;
+sun.shadow.camera.top=12;sun.shadow.camera.bottom=-12;
+scene.add(sun);
+
+// Warm fill
+const fill = new THREE.DirectionalLight(0xffa060,.18);
+fill.position.set(-6,5,-4);
+scene.add(fill);
+
+// Zone accent lights (start dim, zone navigation lights them up)
+const zoneLights = ZONES.map((z,i)=>{
+  const l = new THREE.PointLight(z.color,.0,9,1.5);
+  const p = [[-4,5,2],[4.5,5,2],[0,5,-3],[5.5,5,-3],[-5.5,5,-3]];
+  l.position.set(...p[i]);
+  scene.add(l);
+  return l;
+});
+
+// Lamp warm glow (always on)
+const lampLight = new THREE.PointLight(0xffb347,1.4,5,2);
+lampLight.position.set(-7,3.8,-5.5);
+scene.add(lampLight);
+
+// Monitor glow
+const monGlow = new THREE.PointLight(0x4a8eff,.6,2.5,2);
+monGlow.position.set(-3.5,1.9,-6.5);
+scene.add(monGlow);
+
+// ═══════════════════════════════════════════════════════
+// MATERIALS PALETTE
+// ═══════════════════════════════════════════════════════
+const M = {
+  // Walls / room
+  floorWood: new THREE.MeshLambertMaterial({color:0x1a130d}),
+  wallPaint: new THREE.MeshLambertMaterial({color:0x111014}),
+  wallAccent: new THREE.MeshLambertMaterial({color:0x0e0d12}),
+  ceiling: new THREE.MeshLambertMaterial({color:0x0d0c10}),
+  rug: new THREE.MeshLambertMaterial({color:0x1c1728}),
+  rugBorder: new THREE.MeshLambertMaterial({color:0x2a2038}),
+  baseboard: new THREE.MeshLambertMaterial({color:0x1e1c28}),
+
+  // Furniture woods
+  deskWood: new THREE.MeshLambertMaterial({color:0x2d1f0f}),
+  deskWoodLight: new THREE.MeshLambertMaterial({color:0x3d2a14}),
+  shelfWood: new THREE.MeshLambertMaterial({color:0x241a0e}),
+
+  // Metal
+  metalDark: new THREE.MeshLambertMaterial({color:0x252535}),
+  metalMid: new THREE.MeshLambertMaterial({color:0x33334a}),
+  chrome: new THREE.MeshLambertMaterial({color:0x4a4a60}),
+
+  // Chair / upholstery
+  chairFabric: new THREE.MeshLambertMaterial({color:0x1a1528}),
+  chairLeather: new THREE.MeshLambertMaterial({color:0x0f0c18}),
+  couchFabric: new THREE.MeshLambertMaterial({color:0x2e2040}),
+
+  // Electronics
+  laptopBody: new THREE.MeshLambertMaterial({color:0x28283a}),
+  screenOff: new THREE.MeshLambertMaterial({color:0x0a0a14}),
+  screenOn: new THREE.MeshBasicMaterial({color:0x2a5caa}),
+  screenGreen: new THREE.MeshBasicMaterial({color:0x1a3d1a}),
+
+  // Accents
+  gold: new THREE.MeshLambertMaterial({color:0xa07830}),
+  lampShade: new THREE.MeshLambertMaterial({color:0xd4a060,side:THREE.DoubleSide}),
+  lampBase: new THREE.MeshLambertMaterial({color:0x3a2a1a}),
+  plant: new THREE.MeshLambertMaterial({color:0x1e5c28}),
+  plantDark: new THREE.MeshLambertMaterial({color:0x163d1a}),
+  pot: new THREE.MeshLambertMaterial({color:0x6b4a35}),
+  potDark: new THREE.MeshLambertMaterial({color:0x3e2820}),
+
+  // Books
+  books: [
+    new THREE.MeshLambertMaterial({color:0xc0392b}),
+    new THREE.MeshLambertMaterial({color:0x1a6b9a}),
+    new THREE.MeshLambertMaterial({color:0x2e7d32}),
+    new THREE.MeshLambertMaterial({color:0x8e44ad}),
+    new THREE.MeshLambertMaterial({color:0xd35400}),
+    new THREE.MeshLambertMaterial({color:0x16a085}),
+    new THREE.MeshLambertMaterial({color:0x7f8c8d}),
+    new THREE.MeshLambertMaterial({color:0x2c3e50}),
+  ],
+
+  // Sports
+  volleyball: new THREE.MeshLambertMaterial({color:0xf0e060}),
+  vbLine: new THREE.MeshBasicMaterial({color:0x333300}),
+  racketFrame: new THREE.MeshLambertMaterial({color:0x2d7a1f}),
+  racketHandle: new THREE.MeshLambertMaterial({color:0x4a2010}),
+  racketString: new THREE.MeshBasicMaterial({color:0x99dd44}),
+  sportsBag: new THREE.MeshLambertMaterial({color:0x1a237e}),
+  corkboard: new THREE.MeshLambertMaterial({color:0x8b6340}),
+  pin: new THREE.MeshLambertMaterial({color:0xe8543a}),
+};
+
+// ═══════════════════════════════════════════════════════
+// GEOMETRY HELPERS
+// ═══════════════════════════════════════════════════════
+function add(mesh){scene.add(mesh);return mesh;}
+function box(w,h,d,mat,x,y,z,ry=0,rx=0){
+  const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);
+  m.position.set(x,y,z);m.rotation.set(rx,ry,0);
+  m.castShadow=true;m.receiveShadow=true;
+  return add(m);
+}
+function cyl(rt,rb,h,mat,x,y,z,ry=0){
+  const m=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,24),mat);
+  m.position.set(x,y,z);m.rotation.y=ry;
+  m.castShadow=true;m.receiveShadow=true;
+  return add(m);
+}
+function sph(r,mat,x,y,z){
+  const m=new THREE.Mesh(new THREE.SphereGeometry(r,24,24),mat);
+  m.position.set(x,y,z);m.castShadow=true;
+  return add(m);
+}
+function torus(r,tube,mat,x,y,z,rx=0,ry=0){
+  const m=new THREE.Mesh(new THREE.TorusGeometry(r,tube,12,32),mat);
+  m.position.set(x,y,z);m.rotation.set(rx,ry,0);
+  m.castShadow=true;return add(m);
+}
+function plane(w,d,mat,x,y,z,rx=0,ry=0){
+  const m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),mat);
+  m.position.set(x,y,z);m.rotation.set(rx,ry,0);
+  m.receiveShadow=true;return add(m);
+}
+
+// ═══════════════════════════════════════════════════════
+// ROOM SHELL
+// ═══════════════════════════════════════════════════════
+// Floor with subtle plank feel (darker seams via geometry offset)
+plane(22,16,M.floorWood,0,0,0,-Math.PI/2);
+// Floor plank lines
+for(let i=-5;i<=5;i++){
+  const seam=new THREE.Mesh(new THREE.PlaneGeometry(22,.012),new THREE.MeshBasicMaterial({color:0x0d0907}));
+  seam.rotation.x=-Math.PI/2;seam.position.set(i*1.1,.002,0);add(seam);
+}
+
+// Walls
+plane(22,9,M.wallPaint,0,4.5,-8); // back
+plane(16,9,M.wallPaint,-11,4.5,0,0,Math.PI/2); // left
+plane(16,9,M.wallPaint,11,4.5,0,0,-Math.PI/2); // right
+plane(22,9,M.ceiling,0,9,0,Math.PI/2); // ceiling
+
+// Wall accent trim (dado rail height)
+box(22,.06,.06,M.baseboard,0,1.1,-7.94);
+box(22,.06,.06,M.baseboard,0,1.1,7.94);
+box(16,.06,.06,M.baseboard,-10.94,1.1,0,Math.PI/2);
+box(16,.06,.06,M.baseboard,10.94,1.1,0,Math.PI/2);
+// Skirting boards
+box(22,.12,.08,M.baseboard,0,.06,-7.94);
+box(22,.12,.08,M.baseboard,0,.06,7.94);
+box(16,.12,.08,M.baseboard,-10.94,.06,0,Math.PI/2);
+box(16,.12,.08,M.baseboard,10.94,.06,0,Math.PI/2);
+
+// Rug
+const rugMesh=plane(8,6,M.rugBorder,0,.005,1.5,-Math.PI/2);
+plane(7.4,5.4,M.rug,0,.006,1.5,-Math.PI/2);
+
+// ═══════════════════════════════════════════════════════
+// DESK ZONE — left side
+// ═══════════════════════════════════════════════════════
+// Desk — L-shaped, solid wood look
+// Main surface
+const deskTop1=box(3.4,.1,1.5,M.deskWood,-4,1.05,2.4);
+// Desk edge banding (lighter strip)
+box(3.4,.04,.04,M.deskWoodLight,-4,1.04,1.67);
+// Return section
+box(1.6,.1,1.8,M.deskWood,-5.4,1.05,-6.8);
+box(1.6,.04,.04,M.deskWoodLight,-5.4,1.04,-7.68);
+
+// Desk legs (tapered boxes)
+function deskLeg(x,z){
+  box(.08,1.05,.08,M.metalDark,x,.525,z);
+  box(.12,.04,.12,M.metalDark,x,.02,z); // foot pad
+}
+deskLeg(-5.6,1.68);deskLeg(-2.4,1.68);deskLeg(-5.6,3.1);deskLeg(-2.4,3.1);
+
+// Cable management box under desk
+box(.8,.14,.14,M.metalDark,-4,.66,1.8);
+
+// Monitor stand
+box(.7,.04,.35,M.metalMid,-3.5,1.12,-6.7);
+box(.06,.55,.06,M.metalDark,-3.5,1.37,-6.62);
+// Monitor — ultrawide
+box(2.4,.06,1.36,M.laptopBody,-3.5,1.68,-6.62); // back of monitor
+const monFace=box(2.36,1.32,.04,M.screenOff,-3.5,1.96,-6.5);
+// Screen content glow
+const screenContent=new THREE.Mesh(new THREE.PlaneGeometry(2.2,1.18),M.screenOn);
+screenContent.position.set(-3.5,1.96,-6.47);add(screenContent);
+// Code lines on screen (decorative)
+for(let i=0;i<8;i++){
+  const lineLen=.3+Math.random()*.9;
+  const codeLine=new THREE.Mesh(new THREE.PlaneGeometry(lineLen,.022),
+    new THREE.MeshBasicMaterial({color:i%3===0?0x69dd80:i%3===1?0x7ab4ff:0xffcc66,transparent:true,opacity:.7}));
+  codeLine.position.set(-3.5+(Math.random()-.5)*.8,1.62+i*.092,-6.46);
+  add(codeLine);
+}
+monFace.userData={clickable:true,objectData:ZONES[0].objects[1]};
+
+// Laptop (on desk surface)
+const lapBase=box(1.2,.055,.85,M.laptopBody,-4.2,1.11,2.5);
+lapBase.userData={clickable:true,objectData:ZONES[0].objects[0]};
+const lapScreen=box(1.2,.72,.04,M.laptopBody,-4.2,1.5,2.15);
+lapScreen.userData={clickable:true,objectData:ZONES[0].objects[0]};
+lapScreen.rotation.x=-.18; // slight tilt
+// Laptop screen content
+const lapGlow=new THREE.Mesh(new THREE.PlaneGeometry(1.06,.6),
+  new THREE.MeshBasicMaterial({color:0x1a2a44,transparent:true,opacity:.85}));
+lapGlow.position.set(-4.2,1.5,2.13);lapGlow.rotation.x=-.18;add(lapGlow);
+
+// Keyboard
+box(.95,.02,.32,M.metalMid,-4.2,1.09,2.8);
+// Key rows (decorative)
+for(let row=0;row<3;row++)for(let col=0;col<12;col++){
+  const key=new THREE.Mesh(new THREE.BoxGeometry(.06,.015,.06),
+    new THREE.MeshLambertMaterial({color:0x2a2a3c}));
+  key.position.set(-4.72+col*.075,1.105,2.68+row*.09);add(key);
+}
+
+// Mouse
+const mouseBody=box(.1,.04,.16,M.metalMid,-3.4,1.08,2.7);
+// Mouse scroll wheel
+box(.02,.025,.04,M.chrome,-3.4,1.1,2.65);
+
+// Desk accessories
+// Pen holder cylinder
+cyl(.075,.065,.18,M.pot,-3,1.14,2.4);
+// Pens in holder
+for(let i=0;i<4;i++){
+  const angle=i*Math.PI/2;
+  cyl(.012,.01,.22,new THREE.MeshLambertMaterial({color:[0xe8543a,0x4a8eff,0x333333,0x2e7d32][i]}),
+    -3+Math.cos(angle)*.03,1.25,2.4+Math.sin(angle)*.03);
+}
+// Notebook
+box(.38,.02,.28,new THREE.MeshLambertMaterial({color:0x1a1a28}),-3.7,1.1,3.1);
+box(.34,.022,.24,new THREE.MeshLambertMaterial({color:0xe8e0d0}),-3.7,1.11,3.1);
+// Small CPU die (decorative)
+box(.25,.03,.25,M.metalMid,-4.9,1.09,2.3);
+for(let i=-2;i<=2;i++){
+  box(.018,.018,.045,M.chrome,-4.9+i*.04,1.09,2.18);
+  box(.018,.018,.045,M.chrome,-4.9+i*.04,1.09,2.42);
+}
+
+// Office chair — fully detailed
+// Seat
+box(.85,.1,.85,M.chairFabric,-4,0.78,3.7);
+box(.81,.06,.81,M.chairLeather,-4,0.82,3.7);
+// Seat padding curve (front edge)
+box(.85,.06,.1,M.chairLeather,-4,.84,3.3);
+// Backrest
+box(.82,.7,.08,M.chairFabric,-4,1.25,4.1);
+box(.78,.66,.05,M.chairLeather,-4,1.27,4.12);
+// Lumbar support bump
+box(.4,.16,.05,M.chairLeather,-4,1.02,4.13);
+// Armrests
+box(.08,.05,.38,M.chairLeather,-3.55,.98,3.82);
+box(.08,.05,.38,M.chairLeather,-4.45,.98,3.82);
+box(.08,.38,.04,M.metalDark,-3.55,.66,3.9);
+box(.08,.38,.04,M.metalDark,-4.45,.66,3.9);
+// Star base
+for(let i=0;i<5;i++){
+  const a=i*Math.PI*2/5;
+  box(.55,.04,.08,M.metalDark,-4+Math.cos(a)*.26,.08,3.7+Math.sin(a)*.26,a);
+}
+cyl(.04,.04,.7,M.chrome,-4,.42,3.7); // gas cylinder
+cyl(.28,.28,.04,M.metalDark,-4,.04,3.7); // base plate
+
+// ═══════════════════════════════════════════════════════
+// BOOKSHELF ZONE — right side
+// ═══════════════════════════════════════════════════════
+// Tall bookcase unit
+box(.06,4.6,.4,M.shelfWood,2.35,2.3,-6.3);  // left side
+box(.06,4.6,.4,M.shelfWood,4.65,2.3,-6.3);  // right side
+box(2.36,.06,.4,M.shelfWood,3.5,4.58,-6.3); // top
+box(2.36,.06,.4,M.shelfWood,3.5,.04,-6.3);  // bottom
+// Shelves
+[.72,1.52,2.32,3.12,3.9].forEach(h=>{
+  box(2.24,.06,.38,M.shelfWood,3.5,h,-6.3);
+});
+// Back panel
+box(2.24,4.52,.02,M.wallAccent,3.5,2.3,-6.5);
+
+// Books on each shelf row
+const bookRows=[
+  [{h:.6,n:7,startX:2.42,space:.28}],
+  [{h:1.4,n:6,startX:2.45,space:.3}],
+  [{h:2.18,n:8,startX:2.42,space:.26}],
+  [{h:3.0,n:5,startX:2.45,space:.32}],
+];
+const clickBookData=[ZONES[1].objects[0],ZONES[1].objects[1]];
+bookRows.forEach(row=>{
+  row.forEach(({h,n,startX,space})=>{
+    for(let i=0;i<n;i++){
+      const bColor=M.books[i%M.books.length];
+      const bh=.6+Math.random()*.25;
+      const bw=.16+Math.random()*.06;
+      const bk=box(bw,bh,.3,bColor,startX+i*space,h+bh/2,-6.3);
+      bk.userData={clickable:true,objectData:clickBookData[i%2]};
+    }
+  });
+});
+
+// Small items on shelves
+// Potted succulent on shelf 3
+cyl(.1,.08,.14,M.pot,4.3,3.22,-6.3);
+sph(.12,M.plant,4.3,3.42,-6.3);
+// Trophy/award shape
+cyl(.08,.12,.22,new THREE.MeshLambertMaterial({color:0x9a7a00}),4.3,1.55,-6.3);
+box(.2,.04,.2,new THREE.MeshLambertMaterial({color:0x9a7a00}),4.3,1.44,-6.3);
+
+// ═══════════════════════════════════════════════════════
+// PINBOARD / PROJECTS — center back wall
+// ═══════════════════════════════════════════════════════
+// Corkboard frame
+box(3.6,.08,2.4,M.shelfWood,0,4.6,-7.94); // frame backing
+box(3.4,.02,2.2,M.corkboard,0,4.6,-7.9); // cork surface
+
+// Project cards pinned to board
+const cardColors=[0x1a2a3a,0x1a1a2a,0x1f1a10,0x1a2a1a,0x2a1a1a];
+const cardData=ZONES[2].objects;
+cardColors.forEach((c,i)=>{
+  const cx=(i%3-1)*1.0, cy=i<3?4.9:4.2;
+  const card=box(.8,.02,.55,new THREE.MeshLambertMaterial({color:c}),cx,cy,-7.87);
+  card.userData={clickable:true,objectData:cardData[i%cardData.length]};
+  // Pin
+  sph(.03,M.pin,cx+(Math.random()-.5)*.1,cy+.35,-7.84);
+});
+
+// ═══════════════════════════════════════════════════════
+// FLOOR LAMP / ABOUT CORNER — far left
+// ═══════════════════════════════════════════════════════
+// Lamp base (weighted disc)
+cyl(.22,.22,.06,M.lampBase,-7.2,.03,-5.8);
+cyl(.12,.1,.06,M.lampBase,-7.2,.07,-5.8);
+// Pole
+cyl(.028,.028,3.6,M.chrome,-7.2,1.85,-5.8);
+// Neck curve (approximate with tilted segment)
+cyl(.022,.022,.5,M.chrome,-7.2,3.7,-5.8,0,.4);
+// Shade
+const shade=new THREE.Mesh(new THREE.ConeGeometry(.38,.44,24,1,true),M.lampShade);
+shade.position.set(-7.2,3.9,-5.8);shade.rotation.x=Math.PI;shade.castShadow=true;
+shade.userData={clickable:true,objectData:ZONES[4].objects[0]};
+add(shade);
+// Shade inner lip
+torus(.38,.02,M.lampBase,-7.2,3.68,-5.8,Math.PI/2);
+
+// Cozy armchair
+// Seat cushion
+box(1.0,.22,1.0,M.couchFabric,-6.2,.66,-5.5);
+box(.92,.12,.92,new THREE.MeshLambertMaterial({color:0x38304e}),-6.2,.72,-5.5);
+// Back cushion
+box(1.0,.75,.14,M.couchFabric,-6.2,1.16,-6.0);
+// Side cushions / arms
+box(.14,.45,.88,M.couchFabric,-6.67,.68,-5.5);
+box(.14,.45,.88,M.couchFabric,-5.73,.68,-5.5);
+// Legs
+[[-.9,.4],[.9,.4],[-.9,-.4],[.9,-.4]].forEach(([dx,dz])=>{
+  box(.08,.44,.08,M.shelfWood,-6.2+dx*.5,.22,-5.5+dz*.5);
+});
+// Throw blanket drape
+box(.85,.06,.6,new THREE.MeshLambertMaterial({color:0x4a3060}),-5.85,.87,-5.2,.3);
+
+// Side table
+cyl(.28,.28,.04,M.deskWood,-5.2,.58,-4.8);
+cyl(.04,.04,.58,M.metalDark,-5.2,.29,-4.8);
+cyl(.12,.12,.04,M.metalDark,-5.2,.02,-4.8);
+// Cup on table
+cyl(.065,.055,.12,new THREE.MeshLambertMaterial({color:0x3a2a1a}),-5.2,.64,-4.8);
+cyl(.055,.055,.02,new THREE.MeshBasicMaterial({color:0x1a0c06}),-5.2,.7,-4.8);
+
+// Large potted plant (corner)
+cyl(.22,.18,.42,M.potDark,-8.5,.21,-6.8);
+cyl(.24,.2,.04,M.potDark,-8.5,.43,-6.8);
+// Plant stems + leaves (spheres)
+sph(.32,M.plant,-8.5,.82,-6.8);
+sph(.24,M.plantDark,-8.1,1.0,-6.5);
+sph(.2,M.plant,-8.8,.95,-7.0);
+sph(.16,M.plantDark,-8.3,1.18,-6.6);
+
+// ═══════════════════════════════════════════════════════
+// SPORTS CORNER — far right
+// ═══════════════════════════════════════════════════════
+// Volleyball
+const vball=sph(.3,M.volleyball,7.0,.3,-5.5);
+vball.userData={clickable:true,objectData:ZONES[3].objects[0]};
+// Seam lines
+[0,1,2].forEach(i=>{
+  const t=torus(.3,.012,M.vbLine,7.0,.3,-5.5,i*.9,i*.6);
+  t.userData={clickable:true,objectData:ZONES[3].objects[0]};
+});
+
+// Tennis racket (wall-mounted, angled)
+const racketGroup = new THREE.Group();
+// Handle
+const rHandle=new THREE.Mesh(new THREE.BoxGeometry(.08,.65,.05),M.racketHandle);
+rHandle.position.set(0,0,0);racketGroup.add(rHandle);
+// Head
+const rHead=new THREE.Mesh(new THREE.TorusGeometry(.28,.038,8,32),M.racketFrame);
+rHead.position.set(0,.62,0);racketGroup.add(rHead);
+// Strings
+for(let i=-4;i<=4;i++){
+  const sh=new THREE.Mesh(new THREE.BoxGeometry(.5,.008,.008),M.racketString);
+  sh.position.set(0,.62+i*.054,0);racketGroup.add(sh);
+  const sv=new THREE.Mesh(new THREE.BoxGeometry(.008,.5,.008),M.racketString);
+  sv.position.set(i*.054,.62,0);racketGroup.add(sv);
+}
+// Throat piece
+const rThroat=new THREE.Mesh(new THREE.BoxGeometry(.08,.25,.04),M.racketFrame);
+rThroat.position.set(0,.38,0);racketGroup.add(rThroat);
+
+racketGroup.position.set(8.5,2.1,-5.5);
+racketGroup.rotation.set(0,-.3,.4);
+scene.add(racketGroup);
+racketGroup.children.forEach(c=>{c.userData={clickable:true,objectData:ZONES[3].objects[1]};c.castShadow=true;});
+
+// Sports bag
+box(.72,.42,.32,M.sportsBag,7.4,.21,-6.2);
+box(.68,.38,.28,new THREE.MeshLambertMaterial({color:0x263298}),7.4,.21,-6.2);
+box(.72,.04,.06,new THREE.MeshLambertMaterial({color:0xffffff}),7.4,.43,-6.0); // logo stripe
+// Handles
+box(.34,.04,.02,M.metalDark,7.2,.48,-6.06);
+
+// Sneakers (pair near bag)
+[-.15,.15].forEach(dx=>{
+  box(.28,.1,.48,new THREE.MeshLambertMaterial({color:0x1a1a2a}),7.4+dx,.05,-5.0);
+  box(.26,.05,.44,new THREE.MeshLambertMaterial({color:0xeeeeee}),7.4+dx,.02,-5.0);
+});
+
+// Water bottle
+cyl(.055,.055,.26,new THREE.MeshLambertMaterial({color:0x1a4a6a}),6.7,.13,-4.8);
+cyl(.04,.04,.06,new THREE.MeshLambertMaterial({color:0x333333}),6.7,.28,-4.8);
+
+// ═══════════════════════════════════════════════════════
+// SHARED ROOM DETAILS
+// ═══════════════════════════════════════════════════════
+// Ceiling light fixture
+cyl(.18,.18,.04,M.metalMid,0,8.96,0); // canopy
+cyl(.08,.08,.25,M.chrome,0,8.82,0); // rod
+cyl(.32,.28,.14,new THREE.MeshLambertMaterial({color:0xd8d0b8}),0,8.62,0); // shade
+// Bulb glow (decorative plane)
+const bulbGlow=new THREE.Mesh(new THREE.CircleGeometry(.1,16),
+  new THREE.MeshBasicMaterial({color:0xffefc0,transparent:true,opacity:.9}));
+bulbGlow.position.set(0,8.55,0);bulbGlow.rotation.x=Math.PI/2;add(bulbGlow);
+
+// Small ceiling spotlights
+[[-4,5],[-4,-3],[4,5],[4,-3],[0,-4]].forEach(([x,z])=>{
+  cyl(.06,.06,.08,M.metalMid,x,8.94,z);
+  cyl(.04,.06,.06,new THREE.MeshLambertMaterial({color:0x888880}),x,8.88,z);
+});
+
+// Framed art on right wall (abstract)
+box(.06,1.6,1.2,M.shelfWood,10.94,4.5,-2,.0); // frame
+box(.02,1.48,1.08,new THREE.MeshLambertMaterial({color:0x0f0e14}),10.9,4.5,-2);
+// Art content
+[0xc8392b,0x1a6b9a,0xe8c97a].forEach((c,i)=>{
+  box(.01,.4+i*.2,.3+i*.1,new THREE.MeshLambertMaterial({color:c}),10.88,4.3+i*.3,-2.2+i*.2);
+});
+
+// Long console table on back wall
+box(4,.06,.55,M.deskWood,0,1.0,-7.5);
+box(.06,.96,.55,M.deskWood,-1.96,.52,-7.5);
+box(.06,.96,.55,M.deskWood,1.96,.52,-7.5);
+// Items on console table
+// Small speaker
+box(.22,.26,.2,M.metalDark,-.8,1.17,-7.35);
+box(.18,.22,.16,M.metalDark,-.8,1.17,-7.35);
+box(.1,.1,.01,new THREE.MeshBasicMaterial({color:0x222230}),-.8,1.17,-7.26);
+// Hardcover books (stacked)
+box(.32,.04,.26,M.books[0],.4,1.03,-7.4);
+box(.3,.04,.24,M.books[2],.4,1.07,-7.4);
+box(.28,.04,.22,M.books[3],.4,1.11,-7.4);
+// Small decorative sphere
+sph(.09,new THREE.MeshLambertMaterial({color:0x8a8a9a}),.9,1.1,-7.38);
+
+// ═══════════════════════════════════════════════════════
+// CLICKABLES REGISTRY
+// ═══════════════════════════════════════════════════════
+const clickables=[];
+scene.traverse(o=>{ if(o.userData.clickable) clickables.push(o); });
+// Add shade to lamp clickable for about zone
+shade.userData={clickable:true,objectData:ZONES[4].objects[0]};
+
+// ═══════════════════════════════════════════════════════
+// CAMERA CONTROLS
+// ═══════════════════════════════════════════════════════
+let camTarget={x:0,y:3.2,z:11};
+let lookTarget={x:0,y:1.5,z:0};
+let lookCurrent={x:0,y:1.5,z:0};
+let theta=0,phi=0,thetaDrag=0,phiDrag=0;
+let isDragging=false,dragStart={x:0,y:0},hasMoved=false;
+let activeZone=-1;
+
+const lerp=(a,b,t)=>a+(b-a)*t;
+const lerpV=(a,b,t)=>({x:lerp(a.x,b.x,t),y:lerp(a.y,b.y,t),z:lerp(a.z,b.z,t)});
+
+// ═══════════════════════════════════════════════════════
+// RAYCASTER
+// ═══════════════════════════════════════════════════════
+const ray=new THREE.Raycaster();
+const mouse=new THREE.Vector2();
+let hovered=null;
+
+function updateCursor(x,y){
+  document.getElementById('cur').style.cssText=`left:${x}px;top:${y}px`;
+  document.getElementById('cur-ring').style.cssText=`left:${x}px;top:${y}px`;
+}
+function checkHover(x,y){
+  mouse.set((x/innerWidth)*2-1,-(y/innerHeight)*2+1);
+  ray.setFromCamera(mouse,camera);
+  const hits=ray.intersectObjects(clickables);
+  hovered=hits.length>0?hits[0].object:null;
+  document.body.classList.toggle('hover',!!hovered);
+}
+
+document.addEventListener('mousemove',e=>{
+  updateCursor(e.clientX,e.clientY);
+  checkHover(e.clientX,e.clientY);
+  if(isDragging){
+    const dx=e.clientX-dragStart.x,dy=e.clientY-dragStart.y;
+    if(Math.abs(dx)+Math.abs(dy)>3)hasMoved=true;
+    theta=thetaDrag-dx*.005;
+    phi=Math.max(-.35,Math.min(.5,phiDrag+dy*.004));
+  }
+});
+document.addEventListener('mousedown',e=>{
+  isDragging=true;hasMoved=false;
+  dragStart={x:e.clientX,y:e.clientY};
+  thetaDrag=theta;phiDrag=phi;
+});
+document.addEventListener('mouseup',e=>{
+  isDragging=false;
+  if(!hasMoved&&hovered?.userData?.objectData){
+    openModal(hovered.userData.objectData);
+  }
+});
+document.addEventListener('touchstart',e=>{
+  const t=e.touches[0];isDragging=true;hasMoved=false;
+  dragStart={x:t.clientX,y:t.clientY};thetaDrag=theta;phiDrag=phi;
+},{passive:true});
+document.addEventListener('touchmove',e=>{
+  const t=e.touches[0];
+  const dx=t.clientX-dragStart.x,dy=t.clientY-dragStart.y;
+  if(Math.abs(dx)+Math.abs(dy)>5)hasMoved=true;
+  theta=thetaDrag-dx*.005;
+  phi=Math.max(-.35,Math.min(.5,phiDrag+dy*.004));
+},{passive:true});
+document.addEventListener('touchend',()=>{isDragging=false;});
+
+// ═══════════════════════════════════════════════════════
+// ZONE NAVIGATION
+// ═══════════════════════════════════════════════════════
+const navEl=document.getElementById('nav');
+ZONES.forEach((z,i)=>{
+  const d=document.createElement('div');d.className='nd';
+  d.innerHTML=`<span class="nd-label">${z.tag}</span><div class="nd-pip"></div>`;
+  d.onclick=()=>goZone(i);navEl.appendChild(d);
+});
+
+function goZone(i){
+  activeZone=i;
+  const z=ZONES[i];
+  camTarget={...z.cam};
+  lookTarget={x:z.cam.x*.25,y:1.5,z:z.cam.z*.1};
+  theta=0;phi=0;
+
+  document.querySelectorAll('.nd').forEach((d,j)=>d.classList.toggle('active',j===i));
+
+  ['zone-tag','zone-name','zone-desc'].forEach(id=>document.getElementById(id).style.opacity='0');
+  setTimeout(()=>{
+    document.getElementById('zone-tag').textContent=z.tag;
+    document.getElementById('zone-name').textContent=z.name;
+    document.getElementById('zone-desc').textContent=z.desc;
+    ['zone-tag','zone-name','zone-desc'].forEach(id=>document.getElementById(id).style.opacity='1');
+  },200);
+
+  zoneLights.forEach((l,j)=>{ l.intensity = j===i ? 1.6 : 0; });
+  document.getElementById('pbar').style.width=((i+1)/ZONES.length*100)+'%';
+}
+
+// ═══════════════════════════════════════════════════════
+// MODAL
+// ═══════════════════════════════════════════════════════
+function openModal(d){
+  document.getElementById('modal-eyebrow').textContent=d.ey;
+  document.getElementById('modal-title').textContent=d.title;
+  document.getElementById('modal-body').innerHTML=d.body;
+  document.getElementById('modal-chips').innerHTML=d.chips.map(c=>`<span class="chip">${c}</span>`).join('');
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal(){document.getElementById('modal').classList.remove('open');}
+document.getElementById('modal-x').onclick=closeModal;
+document.getElementById('modal-bg').onclick=closeModal;
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+
+// ═══════════════════════════════════════════════════════
+// INTRO
+// ═══════════════════════════════════════════════════════
+document.getElementById('intro-btn').onclick=()=>{
+  document.getElementById('intro').classList.add('gone');
+  setTimeout(()=>goZone(0),600);
+};
+
+// ═══════════════════════════════════════════════════════
+// ANIMATE LOOP
+// ═══════════════════════════════════════════════════════
+const clock=new THREE.Clock();
+const camPos=new THREE.Vector3();
+const lookV=new THREE.Vector3();
+const orbitR=1.3;
+
+function animate(){
+  requestAnimationFrame(animate);
+  const t=clock.getElapsedTime();
+
+  // Floating animations
+  vball.position.y=.3+Math.sin(t*1.1)*.07;
+  lampLight.intensity=1.3+Math.sin(t*1.9)*.12;
+  bulbGlow.material.opacity=.85+Math.sin(t*.8)*.08;
+  lapGlow.material.opacity=.8+Math.sin(t*.4)*.1;
+  monGlow.intensity=.5+Math.sin(t*.3)*.15;
+
+  // Racket gentle sway
+  racketGroup.rotation.z=.4+Math.sin(t*.5)*.03;
+
+  // Camera orbit
+  const ox=Math.sin(theta)*orbitR;
+  const oz=Math.cos(theta)*orbitR;
+  const oy=Math.sin(phi)*orbitR;
+
+  camPos.set(
+    lerp(camera.position.x,camTarget.x+ox,.055),
+    lerp(camera.position.y,camTarget.y+oy,.055),
+    lerp(camera.position.z,camTarget.z+oz,.055)
+  );
+  camera.position.copy(camPos);
+
+  lookCurrent=lerpV(lookCurrent,lookTarget,.065);
+  lookV.set(lookCurrent.x+ox*.2,lookCurrent.y,lookCurrent.z);
+  camera.lookAt(lookV);
+
+  // Hovered object pulse
+  if(hovered){
+    const s=1+Math.sin(t*5)*.02;
+    hovered.scale.setScalar(s);
+  }
+
+  renderer.render(scene,camera);
+}
+animate();
+
+window.addEventListener('resize',()=>{
+  camera.aspect=innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth,innerHeight);
+});
+</script>
+</body>
+</html>

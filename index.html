@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harry Wang — Engineer</title>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg: #0a0908;
+  --bg2: #0f0e0d;
+  --bg3: #141210;
+  --surface: #181614;
+  --border: rgba(255,255,255,0.07);
+  --border-bright: rgba(255,255,255,0.14);
+  --text: #e8e4dd;
+  --text-mid: #7a7570;
+  --text-dim: #3d3a36;
+  --accent: #e8543a;
+  --accent2: #e8c97a;
+  --accent-dim: rgba(232,84,58,0.12);
+  --serif: 'Instrument Serif', serif;
+  --mono: 'Geist Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);overflow-x:hidden;}
+::selection{background:var(--accent);color:#fff;}
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--accent);}
+
+/* NOISE TEXTURE OVERLAY */
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:9999;opacity:.4;
+}
+
+/* PROGRESS BAR */
+#progress{position:fixed;top:0;left:0;height:1px;background:var(--accent);z-index:1000;transition:width .1s linear;}
+
+/* NAV */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:500;
+  height:52px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 40px;
+  background:rgba(10,9,8,.85);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{
+  font-family:var(--serif);font-size:1rem;
+  text-decoration:none;color:var(--text);
+  display:flex;align-items:center;gap:8px;
+}
+.nav-logo em{font-style:italic;color:var(--accent2);}
+.nav-dot-sep{width:4px;height:4px;background:var(--accent);border-radius:50%;}
+.nav-links{display:flex;gap:28px;list-style:none;align-items:center;}
+.nav-links a{
+  font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;
+  text-decoration:none;color:var(--text-mid);transition:color .2s;
+}
+.nav-links a:hover{color:var(--text);}
+.nav-cta{
+  font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;
+  background:transparent;border:1px solid rgba(232,84,58,.5);color:var(--accent) !important;
+  padding:7px 18px;transition:background .2s,border-color .2s !important;
+}
+.nav-cta:hover{background:var(--accent-dim) !important;border-color:var(--accent) !important;}
+
+/* HERO */
+.hero{
+  min-height:100vh;
+  display:grid;grid-template-columns:1fr 1fr;
+  padding-top:52px;
+  border-bottom:1px solid var(--border);
+}
+.hero-left{
+  padding:80px 60px 80px 40px;
+  display:flex;flex-direction:column;justify-content:center;
+  border-right:1px solid var(--border);
+  position:relative;overflow:hidden;
+}
+/* Radial glow behind hero text */
+.hero-left::before{
+  content:'';position:absolute;
+  width:600px;height:600px;
+  background:radial-gradient(ellipse,rgba(232,84,58,.06) 0%,transparent 70%);
+  top:-100px;left:-150px;pointer-events:none;
+}
+.hero-eyebrow{
+  font-family:var(--mono);font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:28px;
+  display:flex;align-items:center;gap:10px;
+}
+.hero-eyebrow::before{content:'';width:28px;height:1px;background:var(--accent);}
+.hero-name{
+  font-family:var(--serif);
+  font-size:clamp(3.2rem,5.5vw,5.8rem);
+  font-weight:400;line-height:.95;letter-spacing:-.02em;
+  margin-bottom:32px;
+}
+.hero-name em{font-style:italic;color:var(--accent);}
+.hero-bio{
+  font-size:.9rem;line-height:1.8;color:var(--text-mid);
+  max-width:420px;margin-bottom:44px;
+}
+.hero-bio strong{color:var(--text);font-weight:400;}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;}
+.btn-red{
+  font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;
+  background:var(--accent);color:#fff;border:none;
+  padding:13px 28px;cursor:pointer;text-decoration:none;display:inline-block;
+  transition:background .2s,transform .1s;
+}
+.btn-red:hover{background:#c9432c;transform:translateY(-1px);}
+.btn-outline{
+  font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;
+  background:transparent;color:var(--text);border:1px solid var(--border-bright);
+  padding:12px 28px;cursor:pointer;text-decoration:none;display:inline-block;
+  transition:border-color .2s,background .2s;
+}
+.btn-outline:hover{border-color:var(--text-mid);background:rgba(255,255,255,.04);}
+.hero-ghost-num{
+  position:absolute;bottom:40px;right:48px;
+  font-family:var(--serif);font-size:9rem;font-weight:400;
+  color:rgba(255,255,255,.02);line-height:1;user-select:none;pointer-events:none;
+}
+
+.hero-right{
+  padding:80px 40px 80px 60px;
+  display:flex;flex-direction:column;justify-content:space-between;
+}
+.stat-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  border:1px solid var(--border);
+  margin-bottom:44px;
+}
+.stat{
+  padding:28px 24px;
+  border-right:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  position:relative;overflow:hidden;
+}
+.stat:nth-child(2n){border-right:none;}
+.stat:nth-child(n+3){border-bottom:none;}
+.stat::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(232,84,58,.04),transparent);
+  opacity:0;transition:opacity .3s;
+}
+.stat:hover::before{opacity:1;}
+.stat-num{
+  font-family:var(--serif);font-size:2.6rem;color:var(--accent2);
+  line-height:1;margin-bottom:6px;
+}
+.stat-label{
+  font-family:var(--mono);font-size:.56rem;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--text-mid);
+}
+.skills-wrap{display:flex;flex-wrap:wrap;gap:6px;}
+.skill-tag{
+  font-family:var(--mono);font-size:.56rem;letter-spacing:.08em;
+  border:1px solid var(--border);color:var(--text-dim);padding:4px 10px;
+  transition:border-color .2s,color .2s;cursor:default;
+}
+.skill-tag:hover{border-color:rgba(232,201,122,.3);color:var(--accent2);}
+
+/* SECTIONS */
+.section{
+  border-bottom:1px solid var(--border);
+  opacity:0;transform:translateY(28px);
+  transition:opacity .75s ease,transform .75s ease;
+}
+.section.vis{opacity:1;transform:none;}
+
+.sec-head{
+  display:grid;grid-template-columns:48px 1fr;
+  gap:0;padding:60px 40px 0;margin-bottom:52px;
+}
+.sec-num{
+  font-family:var(--mono);font-size:.56rem;letter-spacing:.1em;
+  color:var(--accent);padding-top:8px;
+}
+.sec-title{
+  font-family:var(--serif);
+  font-size:clamp(2.2rem,4vw,3.5rem);
+  font-weight:400;line-height:1.0;letter-spacing:-.02em;
+}
+.sec-title em{font-style:italic;color:var(--accent);}
+
+/* EXPERIENCE */
+.exp-list{padding:0 40px 60px;}
+.exp-row{
+  display:grid;grid-template-columns:190px 1fr;gap:32px;
+  padding:28px 0;
+  border-top:1px solid var(--border);
+  cursor:default;position:relative;
+  transition:background .2s;
+}
+.exp-row::before{
+  content:'';position:absolute;left:-40px;right:-40px;top:0;bottom:0;
+  background:rgba(255,255,255,.02);opacity:0;transition:opacity .2s;pointer-events:none;
+}
+.exp-row:hover::before{opacity:1;}
+.exp-meta{position:relative;z-index:1;}
+.exp-period{
+  font-family:var(--mono);font-size:.58rem;letter-spacing:.08em;
+  color:var(--text-mid);margin-bottom:5px;
+}
+.exp-org{
+  font-family:var(--serif);font-size:.95rem;font-weight:400;
+  margin-bottom:3px;
+}
+.exp-type{
+  font-family:var(--mono);font-size:.54rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--accent);
+}
+.exp-content{position:relative;z-index:1;}
+.exp-role{
+  font-family:var(--serif);font-size:1.35rem;font-weight:400;
+  line-height:1.2;margin-bottom:12px;
+}
+.exp-desc{
+  font-size:.82rem;line-height:1.8;color:var(--text-mid);
+  margin-bottom:16px;
+}
+.chip-row{display:flex;flex-wrap:wrap;gap:5px;}
+.chip-sm{
+  font-family:var(--mono);font-size:.52rem;letter-spacing:.1em;
+  text-transform:uppercase;padding:3px 9px;
+  border:1px solid var(--border);color:var(--text-mid);
+  transition:border-color .2s,color .2s;
+}
+.exp-row:hover .chip-sm{border-color:var(--border-bright);color:var(--text);}
+
+/* PROJECTS */
+.proj-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  border-left:1px solid var(--border);
+  margin:0 40px 60px;
+}
+.proj-card{
+  border-right:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  padding:30px;cursor:pointer;
+  position:relative;overflow:hidden;
+  transition:background .25s;
+  text-decoration:none;color:inherit;display:block;
+}
+.proj-card::after{
+  content:'';position:absolute;
+  bottom:0;left:0;right:0;height:2px;
+  background:var(--accent);
+  transform:scaleX(0);transition:transform .3s;transform-origin:left;
+}
+.proj-card:hover{background:rgba(255,255,255,.025);}
+.proj-card:hover::after{transform:scaleX(1);}
+.proj-card.wide{grid-column:span 2;}
+.proj-n{
+  font-family:var(--mono);font-size:.52rem;letter-spacing:.16em;
+  color:var(--text-dim);margin-bottom:18px;
+}
+.proj-name{
+  font-family:var(--serif);font-size:1.2rem;line-height:1.2;
+  margin-bottom:10px;
+}
+.proj-card.wide .proj-name{font-size:1.6rem;}
+.proj-desc{
+  font-size:.78rem;line-height:1.75;color:var(--text-mid);
+  margin-bottom:18px;
+}
+.proj-link{
+  font-family:var(--mono);font-size:.58rem;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--accent);
+  display:flex;align-items:center;gap:5px;
+  transition:gap .2s;
+}
+.proj-card:hover .proj-link{gap:9px;}
+.proj-lang{
+  font-family:var(--mono);font-size:.52rem;
+  color:var(--text-dim);margin-top:12px;
+}
+.proj-lang span{color:var(--text-mid);}
+
+/* TERMINAL */
+.term-section{
+  background:var(--bg2);
+  border-bottom:1px solid var(--border);
+  padding:60px 40px;
+  opacity:0;transform:translateY(28px);
+  transition:opacity .75s ease,transform .75s ease;
+}
+.term-section.vis{opacity:1;transform:none;}
+.term-heading{
+  font-family:var(--serif);font-size:clamp(1.8rem,3vw,2.6rem);
+  font-weight:400;font-style:italic;
+  color:var(--text);margin-bottom:32px;
+}
+.term-heading span{color:var(--accent);}
+.term-window{
+  background:#050504;
+  border:1px solid var(--border);
+  max-width:680px;
+  font-family:var(--mono);font-size:.78rem;
+  overflow:hidden;
+}
+.term-titlebar{
+  background:rgba(255,255,255,.04);
+  border-bottom:1px solid var(--border);
+  padding:8px 14px;
+  display:flex;align-items:center;gap:6px;
+}
+.tb-dot{width:11px;height:11px;border-radius:50%;}
+.term-body{padding:20px 24px;max-height:320px;overflow-y:auto;}
+.tl{display:flex;gap:10px;margin-bottom:1px;}
+.t-prompt{color:#5fba7d;}
+.t-cmd{color:var(--text);}
+.t-comment{color:var(--text-dim);}
+.t-out{padding-left:18px;color:#8a8580;line-height:1.8;margin-bottom:2px;}
+.t-out strong{color:#7ab4ff;font-weight:400;}
+.t-out em{color:var(--accent2);font-style:normal;}
+.t-cursor{
+  display:inline-block;width:7px;height:13px;
+  background:#5fba7d;vertical-align:middle;
+  animation:blink 1s step-end infinite;
+}
+@keyframes blink{50%{opacity:0;}}
+.term-input-row{display:flex;align-items:center;gap:10px;margin-top:4px;}
+.term-input{
+  flex:1;background:transparent;border:none;outline:none;
+  color:var(--text);font-family:var(--mono);font-size:.78rem;
+  caret-color:#5fba7d;
+}
+.term-hint{
+  font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;
+  color:var(--text-dim);margin-top:16px;max-width:680px;
+}
+
+/* CONTACT */
+.contact-wrap{
+  display:grid;grid-template-columns:1fr 1fr;
+  min-height:360px;
+}
+.contact-left{
+  padding:72px 60px 72px 40px;
+  border-right:1px solid var(--border);
+  position:relative;overflow:hidden;
+}
+.contact-left::before{
+  content:'';position:absolute;
+  width:500px;height:500px;
+  background:radial-gradient(ellipse,rgba(232,201,122,.04) 0%,transparent 70%);
+  top:-80px;right:-120px;pointer-events:none;
+}
+.contact-title{
+  font-family:var(--serif);
+  font-size:clamp(2.4rem,4.5vw,3.8rem);
+  font-weight:400;line-height:.95;letter-spacing:-.03em;
+  margin-bottom:28px;
+}
+.contact-title em{font-style:italic;color:var(--accent);display:block;}
+.contact-sub{
+  font-size:.85rem;line-height:1.8;color:var(--text-mid);max-width:320px;
+}
+.contact-right{
+  padding:72px 40px 72px 60px;
+  display:flex;flex-direction:column;justify-content:center;gap:0;
+}
+.contact-link{
+  display:flex;align-items:center;gap:16px;text-decoration:none;
+  color:var(--text);padding:20px 0;
+  border-bottom:1px solid var(--border);
+  transition:padding-left .25s,background .2s;
+  position:relative;overflow:hidden;
+}
+.contact-link::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:2px;
+  background:var(--accent);transform:scaleY(0);transition:transform .25s;
+}
+.contact-link:hover{padding-left:12px;}
+.contact-link:hover::before{transform:scaleY(1);}
+.contact-icon{
+  font-family:var(--mono);font-size:.56rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--accent);min-width:68px;
+}
+.contact-text{font-family:var(--serif);font-size:1.05rem;}
+.contact-arrow{margin-left:auto;color:var(--text-dim);transition:color .2s,transform .2s;}
+.contact-link:hover .contact-arrow{color:var(--accent);transform:translateX(3px);}
+
+/* FOOTER */
+footer{
+  padding:22px 40px;display:flex;
+  justify-content:space-between;align-items:center;
+  border-top:1px solid var(--border);
+}
+.foot-l{font-family:var(--mono);font-size:.56rem;letter-spacing:.1em;color:var(--text-dim);}
+.foot-r{font-family:var(--serif);font-style:italic;font-size:.82rem;color:var(--text-dim);}
+
+/* RESPONSIVE */
+@media(max-width:860px){
+  .hero{grid-template-columns:1fr;}
+  .hero-left{border-right:none;border-bottom:1px solid var(--border);padding:60px 24px;}
+  .hero-right{padding:40px 24px 60px;}
+  nav{padding:0 20px;}
+  .nav-links{display:none;}
+  .sec-head{padding:40px 24px 0;}
+  .exp-list{padding:0 24px 40px;}
+  .exp-row{grid-template-columns:1fr;gap:12px;}
+  .exp-row::before{left:-24px;right:-24px;}
+  .proj-grid{grid-template-columns:1fr;margin:0 24px 40px;}
+  .proj-card.wide{grid-column:span 1;}
+  .term-section{padding:40px 24px;}
+  .contact-wrap{grid-template-columns:1fr;}
+  .contact-left{border-right:none;border-bottom:1px solid var(--border);padding:48px 24px;}
+  .contact-right{padding:40px 24px 48px;}
+  footer{padding:18px 24px;flex-direction:column;gap:8px;}
+}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<div id="root"></div>
+
+<script type="text/babel">
+const {useState,useEffect,useRef} = React;
+
+const EXP = [
+  {
+    period:'Winter 2026',
+    org:'Zynga',
+    type:'Co-op · Machine Learning',
+    role:'Machine Learning Engineering Intern',
+    desc:'Incoming machine learning engineering co-op at Zynga. Working on ML systems for one of the world\'s largest mobile game developers.',
+    chips:['Machine Learning','Python','ML Systems','Game Tech'],
+    link:'https://github.com/harryjwang',
+  },
+  {
+    period:'Jan 2025 – Present',
+    org:'Teledyne FLIR',
+    type:'Co-op · Software Controls Engineering',
+    role:'Software Controls Engineering Intern',
+    desc:'Designed and developed controllers that optimized flight paths using C++ and Python scripting, decreasing yaw and roll error by ~2° and reducing failing elevation test cases by 75%. Spearheaded simulation testing by designing 12+ MATLAB scripts for niche scenarios, cutting crashes by 4 per quarter and saving ~$60,000.',
+    chips:['C++','Python','MATLAB','Control Systems','Flight Path Optimization','Simulation'],
+    link:'https://github.com/harryjwang',
+  },
+  {
+    period:'May – Aug 2024',
+    org:'Definity Financial Corp.',
+    type:'Co-op · Automation Development',
+    role:'Automation Developer Co-op',
+    desc:'Integrated Android wrapper classes using XPath locators for streamlined test automation across environment switching. Implemented REST API within BrowserStack to achieve 100% automation of the Android test cycle. Developed Docker scripts applying JSON parsing to automate internal JUNIT app testing file uploads.',
+    chips:['Python','REST API','BrowserStack','Docker','Android Testing','JUNIT','JSON'],
+    link:'https://github.com/harryjwang',
+  },
+  {
+    period:'Sep – Dec 2023',
+    org:'Litens Automotive',
+    type:'Co-op · Embedded Engineering',
+    role:'Embedded Engineering Student',
+    desc:'Improved a Python-based GUI interfacing with an EV Battery Management System, parsing CAN and LIN data to increase BMS reception accuracy by 5% and efficiency by 3%. Designed and implemented tests on AURIX and STM32 boards via Keysight oscilloscope, identifying 12+ hardware and software issues improving product release v1.5.0.',
+    chips:['Python','CAN/LIN','STM32','AURIX','BMS','Oscilloscope','Embedded C'],
+    link:'https://github.com/harryjwang',
+  },
+  {
+    period:'Winter 2023',
+    org:'SQI Diagnostics',
+    type:'Co-op · Software Engineering',
+    role:'Software Engineering Intern',
+    desc:'Software engineering co-op at SQI Diagnostics, a medical diagnostics company. Contributed to software systems supporting diagnostic platform development.',
+    chips:['Python','Software Engineering','Diagnostics'],
+    link:'https://github.com/harryjwang',
+  },
+  {
+    period:'Feb 2023 – Present',
+    org:'UW Baja SAE Design Team',
+    type:'Design Team · Electrical & Embedded',
+    role:'Electrical & Embedded Engineering Lead',
+    desc:'Lead a team of 12+ engineers developing hardware and software for the UW Baja SAE car — wire harnesses, buck/boost boards, and a custom data acquisition system improving traction by 1000 RPM and 0–60 times by ~5s.',
+    chips:['C++','ESP32','STM32','CAN','I2C','PCB Design','Altium','Embedded Systems'],
+    link:'https://github.com/harryjwang',
+  },
+  {
+    period:'2024 – Present',
+    org:'UW ASIC Design Team',
+    type:'Design Team · Control Group',
+    role:'Control Group — Testbench Lead',
+    desc:'Lead verification for the control group, building production cocotb testbenches in Python for: round-robin bus arbiter, AES FSM (10-state), SHA FSM (8-state), request queue, and completion queue. Resolved complex signal hierarchy issues and Windows/Git Bash toolchain conflicts.',
+    chips:['cocotb','Python','SystemVerilog','AES','SHA','Bus Arbiter','iverilog'],
+    link:'https://github.com/harryjwang',
+  },
+];
+
+const PROJECTS = [
+  {
+    name:'AI Agent',
+    desc:'General-purpose AI agent for search and query. Integrates LLM-backed reasoning with tool use for natural language querying, web search, and task automation via a clean Python interface.',
+    chips:['Python','LLMs','Tool Use','Search','Agents'],
+    lang:'Python',
+    link:'https://github.com/harryjwang/AI_Agent',
+    wide:true,
+  },
+  {
+    name:'Custom RTOS — STM32',
+    desc:'Built a lightweight real-time OS from scratch for the STM32F401RE. Cooperative scheduling, PendSV-based context switching in ARM Thumb assembly, TCBs, and dynamic memory management — supporting 8 concurrent tasks with 5% context switch overhead. Reduced task-switching errors by 50%.',
+    chips:['C','ARM Assembly','STM32','PendSV','Cooperative Scheduling'],
+    lang:'C · ARM Assembly',
+    link:'https://github.com/harryjwang/Embedded-RTOS-STM32',
+  },
+  {
+    name:'Matrix-Vector Multiplication Engine',
+    desc:'Pipelined MVM engine in SystemVerilog (ECE327). Modular datapath blocks — dot product, accumulator, controller — achieving ~3× throughput vs. non-pipelined baseline. 100% testbench coverage via RTL simulation and waveform debugging.',
+    chips:['SystemVerilog','RTL','Pipelining','Datapath','ECE327'],
+    lang:'SystemVerilog',
+    link:'https://github.com/harryjwang',
+  },
+  {
+    name:'Stratford Light Festival',
+    desc:'Interactive light installation for the City of Stratford\'s Light Festival competition. YOLOv8-based real-time people tracking with live visual effects. Presented across two competition phases and 3 months of ongoing testing.',
+    chips:['Python','YOLOv8','OpenCV','Computer Vision','Raspberry Pi'],
+    lang:'Python',
+    link:'https://github.com/harryjwang',
+  },
+  {
+    name:'Single-Cycle RISC-V CPU',
+    desc:'Built a single-cycle RISC-V CPU in Verilog integrating ALU, control unit, register file, instruction/data memory, and program counter — executing 20+ RISC-style instructions. Testbenches and RTL simulation cut verification time by 30% with zero instruction misfires.',
+    chips:['Verilog','RISC-V','ALU','RTL','Testbenches'],
+    lang:'Verilog',
+    link:'https://github.com/harryjwang',
+  },
+  {
+    name:'Data Acquisition System',
+    desc:'CAN and I2C communication-based DAQ in a Linux environment — ESP32 interfacing with MPU6050 and A3144 hall effect sensor, transmitting to a detachable SD card at 95% accuracy. Built for the Baja SAE car.',
+    chips:['C++','ESP32','STM32','CAN','I2C','Linux','Sensors'],
+    lang:'C++',
+    link:'https://github.com/harryjwang',
+  },
+  {
+    name:'Water Reservoir System',
+    desc:'ECE298 course project — automated water reservoir monitoring and control system. Sensor integration, threshold-based logic, and embedded microcontroller control for real-world environmental monitoring.',
+    chips:['Embedded C','Sensors','MCU','Control Systems','ECE298'],
+    lang:'C',
+    link:'https://github.com/harryjwang',
+  },
+];
+
+const SKILLS=['Python','C/C++','Java','C#','SystemVerilog','Verilog','VHDL','MATLAB','JavaScript','ARMv7','RISC-V','RTL','Altium Designer','cocotb','FPGA','STM32','ESP32','CAN/LIN','Docker','REST API','Linux','Git'];
+
+// TERMINAL
+function Terminal(){
+  const [lines,setLines]=useState([]);
+  const [inp,setInp]=useState('');
+  const [hist,setHist]=useState([]);
+  const [histIdx,setHistIdx]=useState(-1);
+  const inputRef=useRef(null);
+  const endRef=useRef(null);
+
+  const CMDS={
+    help:()=>[
+      {t:'out',s:'Available commands:'},
+      {t:'out',s:'  <strong>about</strong>       — who is harry?'},
+      {t:'out',s:'  <strong>skills</strong>      — full technical toolkit'},
+      {t:'out',s:'  <strong>projects</strong>    — starred projects'},
+      {t:'out',s:'  <strong>experience</strong>  — work history & design teams'},
+      {t:'out',s:'  <strong>coops</strong>       — co-op timeline'},
+      {t:'out',s:'  <strong>hardware</strong>    — embedded & hardware work'},
+      {t:'out',s:'  <strong>software</strong>    — software & ML work'},
+      {t:'out',s:'  <strong>teams</strong>       — UW design teams'},
+      {t:'out',s:'  <strong>education</strong>   — academic background'},
+      {t:'out',s:'  <strong>hobbies</strong>     — outside of engineering'},
+      {t:'out',s:'  <strong>contact</strong>     — get in touch'},
+      {t:'out',s:'  <strong>clear</strong>       — clear terminal'},
+    ],
+    about:()=>[
+      {t:'out',s:'<strong>Harry Wang</strong> — 4A Computer Engineering, University of Waterloo'},
+      {t:'out',s:'5 co-ops across ML, embedded, automation, and software controls.'},
+      {t:'out',s:'Builds at every layer: ARM assembly kernels → RTL engines → ML systems → web apps.'},
+      {t:'out',s:'Electrical & Embedded Lead @ UW Baja SAE. Control group @ UW ASIC.'},
+      {t:'out',s:'Based in Markham, ON.'},
+    ],
+    skills:()=>[
+      {t:'out',s:'Languages:  <em>Python, C, C++, Java, C#, JavaScript, MATLAB</em>'},
+      {t:'out',s:'HDL:        <em>SystemVerilog, Verilog, VHDL, RTL, RISC-V, ARMv7</em>'},
+      {t:'out',s:'Hardware:   <em>STM32, ESP32, AURIX, FPGA, Altium Designer, Oscilloscopes</em>'},
+      {t:'out',s:'Protocols:  <em>CAN, LIN, I2C, SPI, UART, AXI Stream</em>'},
+      {t:'out',s:'Software:   <em>Docker, REST API, BrowserStack, JUNIT, cocotb, iverilog</em>'},
+      {t:'out',s:'Tools:      <em>Git, Linux, STM32CubeIDE, Keysight, GitHub Actions</em>'},
+    ],
+    projects:()=>[
+      {t:'out',s:'<em>01</em> Custom RTOS — STM32     C, ARM Assembly  →  <a href="https://github.com/harryjwang/Embedded-RTOS-STM32" style="color:var(--accent2)">github.com/harryjwang/Embedded-RTOS-STM32</a>'},
+      {t:'out',s:'<em>02</em> MVM Engine               SystemVerilog, RTL, pipelined datapath'},
+      {t:'out',s:'<em>03</em> AI Agent                 Python, LLMs, search & query tool'},
+      {t:'out',s:'<em>04</em> Stratford Light Festival  YOLOv8, OpenCV, real-time people tracking'},
+      {t:'out',s:'<em>05</em> Single-Cycle RISC-V CPU   Verilog, ALU, 20+ instructions'},
+      {t:'out',s:'<em>06</em> Data Acquisition System   C++, ESP32, CAN/I2C, Baja SAE car'},
+      {t:'out',s:'<em>07</em> Water Reservoir System    Embedded C, sensors, ECE298'},
+      {t:'out',s:'All projects → <a href="https://github.com/harryjwang" style="color:var(--accent2)">github.com/harryjwang</a>'},
+    ],
+    experience:()=>[
+      {t:'out',s:'<strong>Zynga</strong>                    Winter 2026  — ML Engineering Intern'},
+      {t:'out',s:'<strong>Teledyne FLIR</strong>            Winter 2025  — Software Controls Engineering Intern'},
+      {t:'out',s:'<strong>Definity Financial</strong>       Summer 2024  — Automation Developer Co-op'},
+      {t:'out',s:'<strong>Litens Automotive</strong>        Fall 2023    — Embedded Engineering Student'},
+      {t:'out',s:'<strong>SQI Diagnostics</strong>          Winter 2023  — Software Engineering Intern'},
+      {t:'out',s:'<strong>UW Baja SAE</strong>              Feb 2023–Now — Electrical & Embedded Lead'},
+      {t:'out',s:'<strong>UW ASIC Design Team</strong>      2024–Now     — Control Group Testbench Lead'},
+    ],
+    coops:()=>[
+      {t:'out',s:'Term 1  Winter 2023  — <em>SQI Diagnostics</em>         Software Engineering'},
+      {t:'out',s:'Term 2  Fall 2023    — <em>Litens Automotive</em>        Embedded Engineering'},
+      {t:'out',s:'Term 3  Summer 2024  — <em>Definity Financial</em>       Automation Development'},
+      {t:'out',s:'Term 4  Winter 2025  — <em>Teledyne FLIR</em>            Software Controls Engineering'},
+      {t:'out',s:'Term 5  Winter 2026  — <em>Zynga</em>                    Machine Learning Engineering'},
+    ],
+    hardware:()=>[
+      {t:'out',s:'Custom RTOS on STM32F401RE — PendSV context switching in ARM assembly'},
+      {t:'out',s:'MVM Engine — pipelined SystemVerilog, ~3× throughput vs baseline'},
+      {t:'out',s:'Single-Cycle RISC-V CPU — Verilog, 20+ instructions, RTL simulation'},
+      {t:'out',s:'Baja SAE DAQ — ESP32 + CAN/I2C + MPU6050 + hall effect sensor'},
+      {t:'out',s:'Litens BMS — AURIX/STM32 testing, CAN/LIN parsing, oscilloscope validation'},
+      {t:'out',s:'ASIC testbenches — cocotb Python: AES FSM, SHA FSM, bus arbiter'},
+      {t:'out',s:'Baja SAE — wire harnesses, buck/boost boards, embedded systems leadership'},
+    ],
+    software:()=>[
+      {t:'out',s:'Zynga — Machine learning engineering (incoming Winter 2026)'},
+      {t:'out',s:'Teledyne FLIR — C++ flight path controllers, 12+ MATLAB simulation scripts'},
+      {t:'out',s:'Definity — Android automation, REST API, Docker, BrowserStack, JUNIT'},
+      {t:'out',s:'Litens — Python GUI for EV BMS, CAN/LIN data parsing'},
+      {t:'out',s:'SQI Diagnostics — Python software engineering, medical diagnostics platform'},
+      {t:'out',s:'AI Agent — general-purpose LLM agent for search & query'},
+      {t:'out',s:'Stratford Light Festival — YOLOv8 real-time people tracking + visual effects'},
+    ],
+    teams:()=>[
+      {t:'out',s:'<strong>UW Baja SAE Design Team</strong> — Electrical & Embedded Engineering Lead'},
+      {t:'out',s:'  Lead 12+ engineers on hardware/software for competition off-road vehicle'},
+      {t:'out',s:'  Wire harnesses, buck/boost boards, custom DAQ system'},
+      {t:'out',s:'  Improved traction by 1000 RPM, 0–60 times by ~5s'},
+      {t:'out',s:''},
+      {t:'out',s:'<strong>UW ASIC Design Team</strong> — Control Group, Testbench Lead'},
+      {t:'out',s:'  cocotb Python testbenches: AES FSM, SHA FSM, bus arbiter, queues'},
+    ],
+    education:()=>[
+      {t:'out',s:'<strong>University of Waterloo</strong> — Sep 2022 to Present'},
+      {t:'out',s:'BASc Computer Engineering, Honours, Co-operative Program'},
+      {t:'out',s:'Current term: 4A'},
+      {t:'out',s:'Notable courses: ECE320 (Computer Architecture), ECE327 (Digital Hardware Systems),'},
+      {t:'out',s:'                 ECE358 (Computer Networks), ECE298, ECE198'},
+    ],
+    hobbies:()=>[
+      {t:'out',s:'Sports:   <em>Volleyball (competitive), Tennis</em>'},
+      {t:'out',s:'Travel:   <em>Japan — Osaka/Kansai & Tokyo</em>'},
+      {t:'out',s:'Building: <em>Side projects, interactive apps, creative coding</em>'},
+      {t:'out',s:'Music:    <em>Always have something on while coding</em>'},
+    ],
+    contact:()=>[
+      {t:'out',s:'GitHub:   <a href="https://github.com/harryjwang" style="color:var(--accent2)">github.com/harryjwang</a>'},
+      {t:'out',s:'LinkedIn: <a href="https://www.linkedin.com/in/harry-j-wang/" style="color:var(--accent2)">linkedin.com/in/harry-j-wang</a>'},
+      {t:'out',s:'Email:    <em>harryjwang04@gmail.com</em>'},
+      {t:'out',s:'Website:  <a href="https://harryjwang.com" style="color:var(--accent2)">harryjwang.com</a>'},
+    ],
+    clear:()=>null,
+  };
+
+  const INIT=[
+    {t:'comment',s:'# Harry Wang — Interactive Terminal v1.0'},
+    {t:'comment',s:'# Type "help" to see available commands'},
+    {t:'spacer'},
+  ];
+
+  useEffect(()=>setLines(INIT),[]);
+  useEffect(()=>endRef.current?.scrollIntoView({behavior:'smooth'}),[lines]);
+
+  function run(cmd){
+    const c=cmd.trim().toLowerCase();
+    const next=[...lines,{t:'cmd',s:cmd}];
+    if(c==='clear'){setLines(INIT);return;}
+    const fn=CMDS[c];
+    if(fn){setLines([...next,...fn(),{t:'spacer'}]);}
+    else if(c===''){setLines(next);}
+    else{setLines([...next,{t:'out',s:`command not found: <strong>${cmd}</strong>. Try <strong>help</strong>.`},{t:'spacer'}]);}
+  }
+
+  function onKey(e){
+    if(e.key==='Enter'){
+      setHist(h=>[inp,...h]);setHistIdx(-1);run(inp);setInp('');
+    }else if(e.key==='ArrowUp'){
+      e.preventDefault();
+      const ni=Math.min(histIdx+1,hist.length-1);
+      setHistIdx(ni);if(hist[ni])setInp(hist[ni]);
+    }else if(e.key==='ArrowDown'){
+      e.preventDefault();
+      const ni=Math.max(histIdx-1,-1);
+      setHistIdx(ni);setInp(ni===-1?'':hist[ni]);
+    }
+  }
+
+  return(
+    <div className="term-section" id="terminal">
+      <div className="term-heading">Ask me anything — <span>interactively.</span></div>
+      <div className="term-window" onClick={()=>inputRef.current?.focus()}>
+        <div className="term-titlebar">
+          <div className="tb-dot" style={{background:'#ff5f57'}}/>
+          <div className="tb-dot" style={{background:'#ffbd2e'}}/>
+          <div className="tb-dot" style={{background:'#28c840'}}/>
+          <span style={{fontFamily:'var(--mono)',fontSize:'.58rem',color:'var(--text-dim)',marginLeft:'8px'}}>harry@portfolio:~</span>
+        </div>
+        <div className="term-body">
+          {lines.map((l,i)=>{
+            if(l.t==='spacer')return <div key={i} style={{height:6}}/>;
+            if(l.t==='comment')return <div key={i} className="tl"><span className="t-comment">{l.s}</span></div>;
+            if(l.t==='cmd')return <div key={i} className="tl"><span className="t-prompt">harry@portfolio:~$</span><span className="t-cmd"> {l.s}</span></div>;
+            return <div key={i} className="t-out" dangerouslySetInnerHTML={{__html:l.s}}/>;
+          })}
+          <div className="term-input-row">
+            <span className="t-prompt">harry@portfolio:~$</span>
+            <input ref={inputRef} className="term-input" value={inp}
+              onChange={e=>setInp(e.target.value)} onKeyDown={onKey}
+              autoComplete="off" spellCheck={false}/>
+            <span className="t-cursor"/>
+          </div>
+          <div ref={endRef}/>
+        </div>
+      </div>
+      <div className="term-hint">↑↓ command history &nbsp;·&nbsp; try: about, coops, hardware, software, teams, hobbies</div>
+    </div>
+  );
+}
+
+// MAIN
+function App(){
+  const [scroll,setScroll]=useState(0);
+
+  useEffect(()=>{
+    const onScroll=()=>{
+      const p=document.documentElement;
+      setScroll(p.scrollTop/(p.scrollHeight-p.clientHeight)*100);
+    };
+    window.addEventListener('scroll',onScroll,{passive:true});
+    return()=>window.removeEventListener('scroll',onScroll);
+  },[]);
+
+  useEffect(()=>{
+    document.getElementById('progress').style.width=scroll+'%';
+  },[scroll]);
+
+  useEffect(()=>{
+    const io=new IntersectionObserver(entries=>{
+      entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis');});
+    },{threshold:.1});
+    document.querySelectorAll('.section,.term-section').forEach(el=>io.observe(el));
+    return()=>io.disconnect();
+  },[]);
+
+  return(
+    <>
+      <nav>
+        <a href="#" className="nav-logo">Harry <em>Wang</em><div className="nav-dot-sep"/></a>
+        <ul className="nav-links">
+          <li><a href="#experience">Experience</a></li>
+          <li><a href="#projects">Projects</a></li>
+          <li><a href="#terminal">Terminal</a></li>
+          <li><a href="#contact">Contact</a></li>
+          <li><a href="/room" className="nav-cta" style={{marginRight:8}}>Room ↗</a></li>
+          <li><a href="https://github.com/harryjwang" target="_blank" className="nav-cta">GitHub ↗</a></li>
+        </ul>
+      </nav>
+
+      {/* HERO */}
+      <section className="hero">
+        <div className="hero-left">
+          <div className="hero-eyebrow">5 Co-ops complete · Open to new roles</div>
+          <h1 className="hero-name">Harry<br/><em>Wang.</em></h1>
+          <p className="hero-bio">
+            <strong>4A Computer Engineering</strong> at the University of Waterloo.
+            I build at every layer — from ARM assembly and embedded RTOS kernels
+            to ML systems, automation platforms, and interactive experiences.
+            Electrical &amp; Embedded Lead on <strong>UW Baja SAE</strong>.
+            Control group on the <strong>UW ASIC Design Team</strong>.
+          </p>
+          <div className="hero-actions">
+            <a href="#experience" className="btn-red">View Work</a>
+            <a href="https://github.com/harryjwang" target="_blank" className="btn-outline">GitHub ↗</a>
+            <a href="https://www.linkedin.com/in/harry-j-wang/" target="_blank" className="btn-outline">LinkedIn ↗</a>
+          </div>
+          <div className="hero-ghost-num">01</div>
+        </div>
+        <div className="hero-right">
+          <div className="stat-grid">
+            {[
+              {num:'4A',label:'CompEng · UWaterloo'},
+              {num:'5',label:'Co-ops Completed'},
+              {num:'2',label:'Design Teams'},
+              {num:'VB·TN',label:'Volleyball & Tennis'},
+            ].map(s=>(
+              <div className="stat" key={s.label}>
+                <div className="stat-num">{s.num}</div>
+                <div className="stat-label">{s.label}</div>
+              </div>
+            ))}
+          </div>
+          <div className="skills-wrap">
+            {SKILLS.map(s=><span key={s} className="skill-tag">{s}</span>)}
+          </div>
+        </div>
+      </section>
+
+      {/* EXPERIENCE */}
+      <section className="section" id="experience">
+        <div className="sec-head">
+          <span className="sec-num">02</span>
+          <h2 className="sec-title">Work &<br/><em>Experience.</em></h2>
+        </div>
+        <div className="exp-list">
+          {EXP.map((e,i)=>(
+            <div className="exp-row" key={i}>
+              <div className="exp-meta">
+                <div className="exp-period">{e.period}</div>
+                <div className="exp-org">{e.org}</div>
+                <div className="exp-type">{e.type}</div>
+              </div>
+              <div className="exp-content">
+                <div className="exp-role">{e.role}</div>
+                <p className="exp-desc">{e.desc}</p>
+                <div className="chip-row">
+                  {e.chips.map(c=><span key={c} className="chip-sm">{c}</span>)}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* PROJECTS */}
+      <section className="section" id="projects">
+        <div className="sec-head">
+          <span className="sec-num">03</span>
+          <h2 className="sec-title">Starred<br/><em>Projects.</em></h2>
+        </div>
+        <div className="proj-grid">
+          {PROJECTS.map((p,i)=>(
+            <a key={i} href={p.link} target="_blank"
+               className={`proj-card${p.wide?' wide':''}`}>
+              <div className="proj-n">0{i+1}</div>
+              <div className="proj-name">{p.name}</div>
+              <p className="proj-desc">{p.desc}</p>
+              <div className="chip-row" style={{marginBottom:12}}>
+                {p.chips.map(c=><span key={c} className="chip-sm">{c}</span>)}
+              </div>
+              <div className="proj-lang">Lang: <span>{p.lang}</span></div>
+              <div className="proj-link" style={{marginTop:14}}>View on GitHub <span>→</span></div>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      {/* TERMINAL */}
+      <Terminal/>
+
+      {/* CONTACT */}
+      <section className="section contact-wrap" id="contact">
+        <div className="contact-left">
+          <h2 className="contact-title">Let's build<br/><em>something.</em></h2>
+          <p className="contact-sub">
+            Open to co-op roles, interesting projects, and conversations
+            about engineering at any layer of the stack. Reach out any time.
+          </p>
+        </div>
+        <div className="contact-right">
+          {[
+            {icon:'GitHub',text:'github.com/harryjwang',href:'https://github.com/harryjwang'},
+            {icon:'LinkedIn',text:'harry-j-wang',href:'https://www.linkedin.com/in/harry-j-wang/'},
+            {icon:'Email',text:'harryjwang04@gmail.com',href:'mailto:harryjwang04@gmail.com'},
+            {icon:'Website',text:'harryjwang.com',href:'https://harryjwang.com'},
+          ].map(l=>(
+            <a key={l.icon} href={l.href} target="_blank" className="contact-link">
+              <span className="contact-icon">{l.icon}</span>
+              <span className="contact-text">{l.text}</span>
+              <span className="contact-arrow">↗</span>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      <footer>
+        <span className="foot-l">© 2026 Harry Wang · Waterloo, ON</span>
+        <span className="foot-r">Built with care.</span>
+      </footer>
+    </>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
