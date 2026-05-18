@@ -4,11 +4,11 @@
 <head>
     <meta charset="utf-8">
     <script>
-        var path = window.location.pathname;
+        var path = window.location.pathname.replace('/PortfolioWebsite', '');
         var query = window.location.search;
         var hash = window.location.hash;
         window.location.replace(
-            '/?redirect=' + encodeURIComponent(path + query + hash)
+            '/PortfolioWebsite/?redirect=' + encodeURIComponent(path + query + hash)
         );
     </script>
 </head>

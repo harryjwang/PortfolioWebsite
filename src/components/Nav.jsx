@@ -13,7 +13,7 @@ export default function Nav() {
         <li><a href="#terminal">Terminal</a></li>
         <li><a href="#contact">Contact</a></li>
         <li><a href="/room" className={styles.cta}>Room ↗</a></li>
-        <li><a href="https://github.com/harryjwang" target="_blank" rel="noreferrer" className={styles.cta}>GitHub ↗</a></li>
+        <li><a href="/PortfolioWebsite/room" className={styles.cta}>Room ↗</a></li>
       </ul>
     </nav>
   );

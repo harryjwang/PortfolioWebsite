@@ -3,11 +3,11 @@ import { buildScene } from '../room/scene.js';
 import styles from './Room.module.css';
 
 const ZONES = [
-  { id:'desk',     tag:'Work / Internships', name:'The Desk',     desc:'Where the 9-to-5 happens. Co-ops, internships, industry engineering.',       cam:{x:-4,y:2.6,z:5.2} },
-  { id:'shelf',    tag:'Design Teams',       name:'The Shelf',    desc:'UW design teams. Hardware, embedded systems, and competition engineering.',   cam:{x:4.5,y:2.4,z:4.8} },
-  { id:'projects', tag:'Starred Projects',   name:'The Pinboard', desc:'The things I\'m most proud of building — hardware, software, and AI.',       cam:{x:0,y:3,z:6} },
-  { id:'sports',   tag:'Sports',             name:'The Court',    desc:'Volleyball and tennis. Competitive, team-oriented, always improving.',        cam:{x:5.5,y:2.2,z:-0.5} },
-  { id:'corner',   tag:'About Me',           name:'The Corner',   desc:'A quiet spot. Who I am beyond the résumé.',                                   cam:{x:-5.5,y:2.2,z:-0.5} },
+  { id: 'desk', tag: 'Work / Internships', name: 'The Desk', desc: 'Where the 9-to-5 happens. Co-ops, internships, industry engineering.', cam: { x: -4, y: 2.6, z: 5.2 } },
+  { id: 'shelf', tag: 'Design Teams', name: 'The Shelf', desc: 'UW design teams. Hardware, embedded systems, and competition engineering.', cam: { x: 4.5, y: 2.4, z: 4.8 } },
+  { id: 'projects', tag: 'Starred Projects', name: 'The Pinboard', desc: 'The things I\'m most proud of building — hardware, software, and AI.', cam: { x: 0, y: 3, z: 6 } },
+  { id: 'sports', tag: 'Sports', name: 'The Court', desc: 'Volleyball and tennis. Competitive, team-oriented, always improving.', cam: { x: 5.5, y: 2.2, z: -0.5 } },
+  { id: 'corner', tag: 'About Me', name: 'The Corner', desc: 'A quiet spot. Who I am beyond the résumé.', cam: { x: -5.5, y: 2.2, z: -0.5 } },
 ];
 
 export default function Room() {
@@ -62,7 +62,7 @@ export default function Room() {
             </div>
           </div>
 
-          <a href="/" className={styles.backLink}>← Portfolio</a>
+          <a href="/PortfolioWebsite" className={styles.backLink}>← Portfolio</a>
 
           {/* Zone info */}
           {activeZone >= 0 && (

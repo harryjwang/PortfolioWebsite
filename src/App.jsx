@@ -5,10 +5,10 @@ export default function App() {
   const params = new URLSearchParams(window.location.search);
   const redirect = params.get('redirect');
   if (redirect) {
-    window.history.replaceState(null, '', redirect);
+    window.history.replaceState(null, '', '/PortfolioWebsite' + redirect);
   }
 
   const path = window.location.pathname.replace(/\/$/, '');
-  if (path === '/room') return <Room />;
+  if (path === '/PortfolioWebsite/room' || path === '/room') return <Room />;
   return <Portfolio />;
 }
