@@ -208,10 +208,11 @@ export const TERMINAL_COMMANDS = {
     { t: 'out', s: 'BASc Computer Engineering, Honours, Co-operative Program' },
     { t: 'out', s: 'Current term: 4A' },
     { t: 'out', s: 'Notable courses: ECE320 (Computer Architecture), ECE327 (Digital Hardware),' },
-    { t: 'out', s: '                 ECE358 (Computer Networks), ECE298, ECE198' },
+    { t: 'out', s: '                 ECE358 (Computer Networks), ECE455 (Embedded Systems), ' },
+    { t: 'out', s: '                 ECE457A (Co-op and Adaptive Algorithms), ECE493 (AI/ML Hardware) ' },
   ],
   hobbies: () => [
-    { t: 'out', s: 'Sports:   <em>Volleyball (competitive), Tennis</em>' },
+    { t: 'out', s: 'Sports:   <em>Volleyball, Tennis</em>' },
     { t: 'out', s: 'Travel:   <em>Japan — Osaka/Kansai & Tokyo</em>' },
     { t: 'out', s: 'Building: <em>Side projects, interactive apps, creative coding</em>' },
     { t: 'out', s: 'Music:    <em>Always have something on while coding</em>' },
