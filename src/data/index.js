@@ -216,6 +216,10 @@ export const TERMINAL_COMMANDS = {
     { t: 'out', s: 'Building: <em>Side projects, interactive apps, creative coding</em>' },
     { t: 'out', s: 'Music:    <em>Always have something on while coding</em>' },
   ],
+  BABI: () => [
+    { t: 'out', s: 'BABI I LOVE YOU!' },
+    { t: 'out', s: 'Only babi knows about this one silly' },
+  ],
   contact: () => [
     { t: 'out', s: 'GitHub:   <a href="https://github.com/harryjwang" target="_blank">github.com/harryjwang</a>' },
     { t: 'out', s: 'LinkedIn: <a href="https://www.linkedin.com/in/harry-j-wang/" target="_blank">linkedin.com/in/harry-j-wang</a>' },
