@@ -20,13 +20,22 @@ export default function Portfolio() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // scroll reveal
+  // scroll to top first, then set up observers
   useEffect(() => {
-    const io = new IntersectionObserver(entries => {
-      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('vis'); });
-    }, { threshold: 0.1 });
-    document.querySelectorAll('.section-reveal').forEach(el => io.observe(el));
-    return () => io.disconnect();
+    // force top immediately
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    window.scrollTo(0, 0);
+
+    // wait for scroll to settle before enabling reveal
+    const timer = setTimeout(() => {
+      const io = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('vis'); });
+      }, { threshold: 0.1 });
+      document.querySelectorAll('.section-reveal').forEach(el => io.observe(el));
+    }, 300);
+
+    return () => clearTimeout(timer);
   }, []);
 
   return (

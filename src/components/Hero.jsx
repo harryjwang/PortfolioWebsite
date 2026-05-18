@@ -1,14 +1,19 @@
+import { useEffect } from 'react';
 import { SKILLS } from '../data/index.js';
 import styles from './Hero.module.css';
 
 const STATS = [
-  { num: '4A',   label: 'CompEng · UWaterloo' },
-  { num: '5',    label: 'Co-ops Completed' },
-  { num: '2',    label: 'Design Teams' },
-  { num: 'VB·TN', label: 'Volleyball & Tennis' },
+  { num: '4A', label: 'CompEng · UWaterloo' },
+  { num: '5', label: 'Co-ops Completed' },
+  { num: '2', label: 'Design Teams' },
+  { num: '∞', label: 'Opportunities' },
 ];
 
 export default function Hero() {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <section className={styles.hero}>
       <div className={styles.left}>
@@ -19,7 +24,7 @@ export default function Hero() {
           I build at every layer — from ARM assembly and embedded RTOS kernels
           to ML systems, automation platforms, and interactive experiences.
           Electrical &amp; Embedded Lead on <strong>UW Baja SAE</strong>.
-          Control group on the <strong>UW ASIC Design Team</strong>.
+          Controls team lead on the <strong>UW ASIC Design Team</strong>.
         </p>
         <div className={styles.actions}>
           <a href="#experience" className={styles.btnRed}>View Work</a>

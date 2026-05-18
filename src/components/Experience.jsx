@@ -10,7 +10,7 @@ export default function Experience() {
       </div>
       <div className={styles.list}>
         {EXP.map((e, i) => (
-          <a href={e.link} target="_blank" rel="noreferrer" className={styles.row} key={i}>
+          <div className={styles.row} key={i}>
             <div className={styles.meta}>
               <div className={styles.period}>{e.period}</div>
               <div className={styles.org}>{e.org}</div>
@@ -23,8 +23,7 @@ export default function Experience() {
                 {e.chips.map(c => <span className={styles.chip} key={c}>{c}</span>)}
               </div>
             </div>
-            <span className={styles.arrow}>→</span>
-          </a>
+          </div>
         ))}
       </div>
     </section>

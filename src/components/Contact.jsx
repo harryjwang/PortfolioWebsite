@@ -1,10 +1,9 @@
 import styles from './Contact.module.css';
 
 const LINKS = [
-  { icon: 'GitHub',   text: 'github.com/harryjwang',    href: 'https://github.com/harryjwang' },
-  { icon: 'LinkedIn', text: 'harry-j-wang',              href: 'https://www.linkedin.com/in/harry-j-wang/' },
-  { icon: 'Email',    text: 'harryjwang04@gmail.com',   href: 'mailto:harryjwang04@gmail.com' },
-  { icon: 'Website',  text: 'harryjwang.com',            href: 'https://harryjwang.com' },
+  { icon: 'GitHub', text: 'github.com/harryjwang', href: 'https://github.com/harryjwang' },
+  { icon: 'LinkedIn', text: 'harry-j-wang', href: 'https://www.linkedin.com/in/harry-j-wang/' },
+  { icon: 'Website', text: 'harryjwang.com', href: 'https://harryjwang.github.io/PortfolioWebsite/' },
 ];
 
 export default function Contact() {
