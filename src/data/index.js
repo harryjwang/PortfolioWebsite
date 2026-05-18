@@ -216,7 +216,7 @@ export const TERMINAL_COMMANDS = {
     { t: 'out', s: 'Building: <em>Side projects, interactive apps, creative coding</em>' },
     { t: 'out', s: 'Music:    <em>Always have something on while coding</em>' },
   ],
-  BABI: () => [
+  babi: () => [
     { t: 'out', s: 'BABI I LOVE YOU!' },
     { t: 'out', s: 'Only babi knows about this one silly' },
   ],
